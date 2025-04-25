@@ -62,6 +62,10 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     hass.data[DOMAIN]["coordinator"] = coordinator
 
     from .sensor import async_setup_platform
-    await async_setup_platform(hass, config, hass.helpers.entity_platform.async_add_entities)
+    async def async_add_entities(entities):
+        platform = hass.helpers.entity_platform.async_get_current_platform()
+        await platform.async_add_entities(entities)
+
+    await async_setup_platform(hass, config, async_add_entities)
 
     return True
