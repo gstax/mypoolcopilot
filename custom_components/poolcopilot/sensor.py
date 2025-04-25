@@ -9,7 +9,7 @@ from .const import DOMAIN
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
+async def async_setup_platform(hass, config, async_add_task, discovery_info=None):
     """Set up PoolCopilot sensors from YAML."""
     coordinator = hass.data[DOMAIN]["coordinator"]
 
@@ -19,7 +19,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         PoolCopilotSensor(coordinator, "temperature.water", "Temperature Water", "°C"),
     ]
 
-    async_add_entities(sensors)
+    async_add_task(hass.helpers.entity_platform.async_add_entities(sensors))
 
 
 class PoolCopilotSensor(CoordinatorEntity, SensorEntity):

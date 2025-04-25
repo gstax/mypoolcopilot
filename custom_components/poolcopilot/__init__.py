@@ -48,7 +48,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 
     # 👇 Appel direct à async_setup_platform avec async_add_entities correct
     from .sensor import async_setup_platform
-    await async_setup_platform(hass, config, hass.helpers.entity_platform.async_add_entities)
+    await async_setup_platform(hass, config, hass.async_create_task)
 
     return True
 
