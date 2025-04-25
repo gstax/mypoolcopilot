@@ -46,11 +46,10 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     await coordinator.async_refresh()
 
     hass.data[DOMAIN]["coordinator"] = coordinator
+        # Importer et appeler directement la fonction async_setup_platform
+    from .sensor import async_setup_platform
+    await async_setup_platform(hass, config, lambda entities: hass.async_create_task(hass.helpers.entity_component.async_add_entities(entities)))
 
-    # 👉 Appel du setup de la plateforme "sensor"
-    hass.async_create_task(
-        async_load_platform(hass, "sensor", DOMAIN, {}, config)
-    )
 
     return True
 
