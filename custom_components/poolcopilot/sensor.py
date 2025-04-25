@@ -38,7 +38,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         PoolCopilotSensor(coordinator, "PoolCop.status.poolcop", ""),
     ]
 
-    async_add_entities(sensors)
+    await async_add_entities(sensors)
 
 
 class PoolCopilotSensor(CoordinatorEntity, SensorEntity):
@@ -56,5 +56,6 @@ class PoolCopilotSensor(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self):
         """Return the value from nested data."""
-        return get_nested(self.coordinator.data, self._key)
-
+        value = get_nested(self.coordinator.data, self._key)
+        _LOGGER.debug("📦 Clé : %s → Valeur récupérée : %s", self._key, value)
+        return value
