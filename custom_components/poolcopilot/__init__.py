@@ -7,8 +7,8 @@ import aiohttp
 import async_timeout
 
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.discovery import async_load_platform
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.config_entries import ConfigEntry
 
 from .const import DOMAIN, API_STATUS_URL
 
@@ -44,12 +44,11 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     )
 
     await coordinator.async_refresh()
-
     hass.data[DOMAIN]["coordinator"] = coordinator
-        # Importer et appeler directement la fonction async_setup_platform
-    from .sensor import async_setup_platform
-    await async_setup_platform(hass, config, lambda entities: hass.async_create_task(hass.helpers.entity_component.async_add_entities(entities)))
 
+    # 👇 Appel direct à async_setup_platform avec async_add_entities correct
+    from .sensor import async_setup_platform
+    await async_setup_platform(hass, config, hass.helpers.entity_platform.async_add_entities)
 
     return True
 
