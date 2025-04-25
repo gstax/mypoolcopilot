@@ -8,7 +8,7 @@
         "name": "Température de l'air"
       },
       "poolcopilot_pressure": {
-        "name": "Pression du filtre"
+        "name": "Pression"
       },
       "poolcopilot_pH": {
         "name": "pH"
