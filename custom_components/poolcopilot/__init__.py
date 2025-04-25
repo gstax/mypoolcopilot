@@ -8,7 +8,6 @@ import async_timeout
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-from homeassistant.config_entries import ConfigEntry
 
 from .const import DOMAIN, API_STATUS_URL
 
@@ -46,9 +45,13 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     await coordinator.async_refresh()
     hass.data[DOMAIN]["coordinator"] = coordinator
 
-    # 👇 Appel direct à async_setup_platform avec async_add_entities correct
+    # Fonction pour ajouter les entités proprement
+    async def add_entities_directly(entities):
+        await hass.helpers.entity_component.async_add_entities(entities)
+
+    # Appel au setup de la plateforme avec fonction directe
     from .sensor import async_setup_platform
-    await async_setup_platform(hass, config, hass.async_create_task)
+    await async_setup_platform(hass, config, add_entities_directly)
 
     return True
 
