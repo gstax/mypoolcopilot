@@ -21,7 +21,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         return True
 
     hass.data.setdefault(DOMAIN, {})
-    token = config[DOMAIN]["token"]
+    token = hass.states.get("input_text.token_poolcopilot").state
 
     session = aiohttp.ClientSession()
 
