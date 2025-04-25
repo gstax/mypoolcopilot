@@ -1,0 +1,43 @@
+{
+  "entity": {
+    "sensor": {
+      "poolcopilot_temperature_water": {
+        "name": "Température de l'eau"
+      },
+      "poolcopilot_temperature_air": {
+        "name": "Température de l'air"
+      },
+      "poolcopilot_pressure": {
+        "name": "Pression du filtre"
+      },
+      "poolcopilot_pH": {
+        "name": "pH"
+      },
+      "poolcopilot_orp": {
+        "name": "ORP"
+      },
+      "poolcopilot_ioniser": {
+        "name": "Ioniseur"
+      },
+      "poolcopilot_voltage": {
+        "name": "Tension système"
+      },
+      "poolcopilot_waterlevel": {
+        "name": "Niveau d'eau"
+      },
+      "poolcopilot_status_pump": {
+        "name": "État de la pompe"
+      },
+      "poolcopilot_status_pumpspeed": {
+        "name": "Vitesse de la pompe"
+      },
+      "poolcopilot_status_valveposition": {
+        "name": "Position vanne"
+      },
+      "poolcopilot_status_poolcop": {
+        "name": "État PoolCop"
+      }
+    }
+  }
+}
+
