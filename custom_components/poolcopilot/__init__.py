@@ -6,6 +6,8 @@ from datetime import timedelta
 import aiohttp
 import async_timeout
 
+import asyncio
+
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.discovery import async_load_platform
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -21,7 +23,19 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         return True
 
     hass.data.setdefault(DOMAIN, {})
-    token = hass.states.get("input_text.token_poolcopilot").state
+    for _ in range(20):
+    token_entity = hass.states.get("input_text.token_poolcopilot")
+    if token_entity is not None:
+        break
+    _LOGGER.warning("⏳ En attente de l'entité input_text.token_poolcopilot...")
+    await asyncio.sleep(0.5)
+
+if token_entity is None:
+    _LOGGER.error("❌ input_text.token_poolcopilot introuvable après 10 secondes.")
+    return False
+
+token = token_entity.state
+
 
     session = aiohttp.ClientSession()
 
