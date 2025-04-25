@@ -33,7 +33,7 @@ class PoolCopilotSensor(CoordinatorEntity, SensorEntity):
         self._attr_unique_id = f"poolcopilot_{key.replace('.', '_')}"
 
     @property
-    def _attr_native_value(self):
+    def native_value(self):
         """Return the sensor value."""
         return self.coordinator.data.get(self._key)
 
