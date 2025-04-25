@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import asyncio
 from datetime import timedelta
 
 import aiohttp
@@ -15,29 +14,19 @@ from .const import DOMAIN, API_STATUS_URL
 _LOGGER = logging.getLogger(__name__)
 
 
-async def wait_for_entity(hass, entity_id: str, timeout: int = 30) -> bool:
-    """Attendre que l'entité soit disponible (max timeout secondes)."""
-    for _ in range(timeout):
-        if hass.states.get(entity_id):
-            return True
-        _LOGGER.warning("En attente de l'entité %s...", entity_id)
-        await asyncio.sleep(1)
-    return False
-
-
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Set up the PoolCopilot integration from configuration.yaml."""
     if DOMAIN not in config:
         return True
 
     hass.data.setdefault(DOMAIN, {})
-
-    entity_id = "input_text.token_poolcopilot"
-    if not await wait_for_entity(hass, entity_id):
-        _LOGGER.error("%s introuvable après 30 secondes. Annulation du démarrage.", entity_id)
+    token_entity = hass.states.get("input_text.token_poolcopilot")
+    if not token_entity:
+        _LOGGER.error("Token entity 'input_text.token_poolcopilot' not found.")
         return False
 
-    token = hass.states.get(entity_id).state
+    token = token_entity.state
+
     session = aiohttp.ClientSession()
 
     async def async_update_data():
@@ -61,11 +50,9 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     await coordinator.async_refresh()
     hass.data[DOMAIN]["coordinator"] = coordinator
 
+    # 🛠 Appel propre sans await
     from .sensor import async_setup_platform
-    async def async_add_entities(entities):
-        platform = hass.helpers.entity_platform.async_get_current_platform()
-        await platform.async_add_entities(entities)
-
-    await async_setup_platform(hass, config, async_add_entities)
+    async_setup_platform(hass, config, hass.helpers.entity_platform.async_add_entities)
 
     return True
+

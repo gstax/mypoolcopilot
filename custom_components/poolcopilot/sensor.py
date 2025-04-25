@@ -10,7 +10,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def get_nested(data, path):
-    """Accès récursif à une clé de type 'PoolCop.status.pump' dans un dict imbriqué."""
+    """Access nested key like 'PoolCop.status.pump'."""
     for key in path.split('.'):
         if isinstance(data, dict):
             data = data.get(key)
@@ -38,7 +38,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         PoolCopilotSensor(coordinator, "PoolCop.status.poolcop", ""),
     ]
 
-    await async_add_entities(sensors)
+    async_add_entities(sensors)
 
 
 class PoolCopilotSensor(CoordinatorEntity, SensorEntity):
@@ -59,3 +59,4 @@ class PoolCopilotSensor(CoordinatorEntity, SensorEntity):
         value = get_nested(self.coordinator.data, self._key)
         _LOGGER.debug("📦 Clé : %s → Valeur récupérée : %s", self._key, value)
         return value
+
