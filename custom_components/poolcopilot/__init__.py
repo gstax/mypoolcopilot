@@ -50,6 +50,8 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     hass.async_create_task(
         async_load_platform(hass, "sensor", DOMAIN, {}, config)
     )
+    
+    _LOGGER.warning("✅ PoolCopilot data récupérées : %s", coordinator.data)
 
     return True
 
