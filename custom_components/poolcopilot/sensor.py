@@ -48,8 +48,11 @@ class PoolCopilotSensor(CoordinatorEntity, SensorEntity):
         super().__init__(coordinator)
         self._key = key
         self._attr_native_unit_of_measurement = unit
-        self._attr_translation_key = key.replace(".", "_")
-        self._attr_unique_id = f"poolcopilot_{self._attr_translation_key}"
+        clean_key = key.replace("PoolCop.", "").replace(".", "_")
+        self._attr_translation_key = f"poolcopilot_{clean_key}"
+        self._attr_unique_id = self._attr_translation_key
+        self._attr_native_unit_of_measurement = unit
+
 
     @property
     def native_value(self):
