@@ -19,7 +19,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         PoolCopilotSensor(coordinator, "temperature.water", "Temperature Water", "°C"),
     ]
 
-    await async_add_entities(sensors)
+    async_add_entities(sensors)
 
 
 class PoolCopilotSensor(CoordinatorEntity, SensorEntity):
