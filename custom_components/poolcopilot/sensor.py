@@ -16,7 +16,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     _LOGGER.info("PoolCopilot sensors setup started")
 
     sensors = [
-        PoolCopilotSensor(coordinator, "temperature.water", "Temperature Water", "°C"),
+        PoolCopilotSensor(coordinator, "PoolCop.temperature.water", "Temperature Water", "°C"),
     ]
 
     async_add_entities(sensors)
