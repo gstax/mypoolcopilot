@@ -9,6 +9,15 @@ from .const import DOMAIN
 _LOGGER = logging.getLogger(__name__)
 
 
+def get_nested(data, path):
+    for key in path.split('.'):
+        if isinstance(data, dict):
+            data = data.get(key)
+        else:
+            return None
+    return data
+
+
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Set up PoolCopilot sensors from YAML."""
     coordinator = hass.data[DOMAIN]["coordinator"]
@@ -35,5 +44,5 @@ class PoolCopilotSensor(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self):
         """Return the sensor value."""
-        return self.coordinator.data.get(self._key)
+        return get_nested(self.coordinator.data, self._key)
 
