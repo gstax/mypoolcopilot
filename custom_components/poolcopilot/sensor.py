@@ -47,12 +47,11 @@ class PoolCopilotSensor(CoordinatorEntity, SensorEntity):
     def __init__(self, coordinator, key: str, unit: str):
         super().__init__(coordinator)
         self._key = key
-        self._attr_native_unit_of_measurement = unit
         clean_key = key.replace("PoolCop.", "").replace(".", "_")
+        self._attr_name = f"PoolCopilot {clean_key.replace('_', ' ')}".capitalize()
         self._attr_translation_key = f"poolcopilot_{clean_key}"
         self._attr_unique_id = self._attr_translation_key
         self._attr_native_unit_of_measurement = unit
-
 
     @property
     def native_value(self):
