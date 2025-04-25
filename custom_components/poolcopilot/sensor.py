@@ -10,6 +10,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def get_nested(data, path):
+    """Accès récursif à une clé de type 'PoolCop.status.pump' dans un dict imbriqué."""
     for key in path.split('.'):
         if isinstance(data, dict):
             data = data.get(key)
@@ -22,10 +23,19 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     """Set up PoolCopilot sensors from YAML."""
     coordinator = hass.data[DOMAIN]["coordinator"]
 
-    _LOGGER.info("PoolCopilot sensors setup started")
-
     sensors = [
-        PoolCopilotSensor(coordinator, "PoolCop.temperature.water", "Temperature Water", "°C"),
+        PoolCopilotSensor(coordinator, "PoolCop.temperature.water", "°C"),
+        PoolCopilotSensor(coordinator, "PoolCop.temperature.air", "°C"),
+        PoolCopilotSensor(coordinator, "PoolCop.pressure", "bar"),
+        PoolCopilotSensor(coordinator, "PoolCop.pH", ""),
+        PoolCopilotSensor(coordinator, "PoolCop.orp", "mV"),
+        PoolCopilotSensor(coordinator, "PoolCop.ioniser", "A"),
+        PoolCopilotSensor(coordinator, "PoolCop.voltage", "V"),
+        PoolCopilotSensor(coordinator, "PoolCop.waterlevel", ""),
+        PoolCopilotSensor(coordinator, "PoolCop.status.pump", ""),
+        PoolCopilotSensor(coordinator, "PoolCop.status.pumpspeed", "%"),
+        PoolCopilotSensor(coordinator, "PoolCop.status.valveposition", ""),
+        PoolCopilotSensor(coordinator, "PoolCop.status.poolcop", ""),
     ]
 
     async_add_entities(sensors)
@@ -34,15 +44,15 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 class PoolCopilotSensor(CoordinatorEntity, SensorEntity):
     """Representation of a PoolCopilot sensor."""
 
-    def __init__(self, coordinator, key, name, unit):
+    def __init__(self, coordinator, key: str, unit: str):
         super().__init__(coordinator)
         self._key = key
-        self._attr_name = name
         self._attr_native_unit_of_measurement = unit
-        self._attr_unique_id = f"poolcopilot_{key.replace('.', '_')}"
+        self._attr_translation_key = key.replace(".", "_")
+        self._attr_unique_id = f"poolcopilot_{self._attr_translation_key}"
 
     @property
     def native_value(self):
-        """Return the sensor value."""
+        """Return the value from nested data."""
         return get_nested(self.coordinator.data, self._key)
 
