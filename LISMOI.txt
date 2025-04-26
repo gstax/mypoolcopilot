@@ -1,0 +1,19 @@
+1) on code en local dans /home/steve/mypoolcopilot
+  par exemple le fichier deploy_to_ha.sh
+
+2) git
+
+$ git add deploy_to_ha.sh
+$ git commit -m "le texte du commit"
+$ git push
+
+3) dans le terminal de SCS
+$ cd /config/custom_components/temp_poolcopilot
+$ git pull
+(si ça ne marche pas, on est en http pour github, alors qu'il faut être en ssh (git remote set-url origin git@github.com:gstax/mypoolcopilot.git pour corriger)
+$ ./deploy_to_ha.sh
+ce qui place les fichiers et dossier au bon endroit. c'est HACS qui veut ça (en particulier le dossier custom_components)
+
+
+REM
+- le script /home/steve/poolcop/poolcop_statut.sh permet de chercher le nouveau token (pour dev, HA fera ça tout seul).
