@@ -59,3 +59,7 @@ This project is a **personal** and **unofficial** integration for PoolCopilot sy
 It is **not affiliated with or endorsed by PoolCopilot** or any of its parent companies.  
 All trademarks and registered trademarks are the property of their respective owners.
 
+---
+
+🔮 See the [ROADMAP](ROADMAP.md) for planned improvements and future features.
+
