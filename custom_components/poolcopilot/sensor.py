@@ -10,20 +10,20 @@ from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-# Définition propre des sensors : clé JSON, unité, device_class
+# Liste complète : clé HA + chemin dans le JSON + device_class + unité
 SENSORS = [
-    {"key": "temperature_water", "device_class": "temperature", "unit": "°C"},
-    {"key": "temperature_air", "device_class": "temperature", "unit": "°C"},
-    {"key": "pressure", "device_class": "pressure", "unit": "bar"},
-    {"key": "pH", "device_class": None, "unit": None},
-    {"key": "orp", "device_class": None, "unit": "mV"},
-    {"key": "ioniser", "device_class": None, "unit": None},
-    {"key": "voltage", "device_class": "voltage", "unit": "V"},
-    {"key": "waterlevel", "device_class": None, "unit": "%"},
-    {"key": "status_pump", "device_class": None, "unit": None},
-    {"key": "status_pumpspeed", "device_class": None, "unit": "%"},
-    {"key": "status_valveposition", "device_class": None, "unit": None},
-    {"key": "status_poolcop", "device_class": None, "unit": None},
+    {"key": "temperature_water", "path": ["PoolCop", "temperature", "water"], "device_class": "temperature", "unit": "°C"},
+    {"key": "temperature_air", "path": ["PoolCop", "temperature", "air"], "device_class": "temperature", "unit": "°C"},
+    {"key": "pressure", "path": ["PoolCop", "pressure"], "device_class": "pressure", "unit": "bar"},
+    {"key": "pH", "path": ["PoolCop", "pH"], "device_class": None, "unit": None},
+    {"key": "orp", "path": ["PoolCop", "orp"], "device_class": None, "unit": "mV"},
+    {"key": "ioniser", "path": ["PoolCop", "ioniser"], "device_class": None, "unit": None},
+    {"key": "voltage", "path": ["PoolCop", "voltage"], "device_class": "voltage", "unit": "V"},
+    {"key": "waterlevel", "path": ["PoolCop", "waterlevel"], "device_class": None, "unit": "%"},
+    {"key": "status_pump", "path": ["PoolCop", "status", "pump"], "device_class": None, "unit": None},
+    {"key": "status_pumpspeed", "path": ["PoolCop", "status", "pumpspeed"], "device_class": None, "unit": "%"},
+    {"key": "status_valveposition", "path": ["PoolCop", "status", "valveposition"], "device_class": None, "unit": None},
+    {"key": "status_poolcop", "path": ["PoolCop", "status", "poolcop"], "device_class": None, "unit": None},
 ]
 
 async def async_setup_entry(hass, entry, async_add_entities):
@@ -32,17 +32,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
     _LOGGER.warning("PoolCopilot coordinator raw data: %s", coordinator.data)
 
-    entities = []
-
-    if coordinator.data:
-        for sensor in SENSORS:
-            key = sensor["key"]
-            if key in coordinator.data:
-                entities.append(PoolCopilotSensor(coordinator, sensor))
-            else:
-                _LOGGER.warning("Sensor key '%s' not found in API response", key)
-    else:
-        _LOGGER.warning("No data received from PoolCopilot API.")
+    entities = [PoolCopilotSensor(coordinator, sensor) for sensor in SENSORS]
 
     async_add_entities(entities)
 
@@ -53,6 +43,7 @@ class PoolCopilotSensor(CoordinatorEntity, SensorEntity):
         """Initialize the sensor."""
         super().__init__(coordinator)
         self._key = sensor["key"]
+        self._path = sensor["path"]
         self._attr_unique_id = f"poolcopilot_{self._key}"
         self._attr_translation_key = f"poolcopilot_{self._key}"
 
@@ -62,10 +53,18 @@ class PoolCopilotSensor(CoordinatorEntity, SensorEntity):
         if sensor["unit"]:
             self._attr_native_unit_of_measurement = sensor["unit"]
 
+    def _traverse_path(self, data: dict, path: list[str]) -> Any:
+        """Traverse a dict following a path."""
+        for elem in path:
+            if not isinstance(data, dict) or elem not in data:
+                return None
+            data = data[elem]
+        return data
+
     @property
     def native_value(self) -> Any:
         """Return the sensor value."""
-        return self.coordinator.data.get(self._key)
+        return self._traverse_path(self.coordinator.data, self._path)
 
     @property
     def available(self) -> bool:
