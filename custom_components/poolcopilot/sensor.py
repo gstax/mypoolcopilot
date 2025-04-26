@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from typing import Any
 import logging
+
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -8,55 +10,35 @@ from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
+async def async_setup_entry(hass, entry, async_add_entities):
+    """Set up PoolCopilot sensors based on a config entry."""
+    coordinator = hass.data[DOMAIN][entry.entry_id]
 
-def get_nested(data, path):
-    """Access nested key like 'PoolCop.status.pump'."""
-    for key in path.split('.'):
-        if isinstance(data, dict):
-            data = data.get(key)
-        else:
-            return None
-    return data
+    entities = []
 
+    # Génération dynamique des sensors en fonction des données API
+    for key, value in coordinator.data.items():
+        entities.append(PoolCopilotSensor(coordinator, key))
 
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    """Set up PoolCopilot sensors from YAML."""
-    coordinator = hass.data[DOMAIN]["coordinator"]
-
-    sensors = [
-        PoolCopilotSensor(coordinator, "PoolCop.temperature.water", "°C"),
-        PoolCopilotSensor(coordinator, "PoolCop.temperature.air", "°C"),
-        PoolCopilotSensor(coordinator, "PoolCop.pressure", "bar"),
-        PoolCopilotSensor(coordinator, "PoolCop.pH", ""),
-        PoolCopilotSensor(coordinator, "PoolCop.orp", "mV"),
-        PoolCopilotSensor(coordinator, "PoolCop.ioniser", "A"),
-        PoolCopilotSensor(coordinator, "PoolCop.voltage", "V"),
-        PoolCopilotSensor(coordinator, "PoolCop.waterlevel", ""),
-        PoolCopilotSensor(coordinator, "PoolCop.status.pump", ""),
-        PoolCopilotSensor(coordinator, "PoolCop.status.pumpspeed", "%"),
-        PoolCopilotSensor(coordinator, "PoolCop.status.valveposition", ""),
-        PoolCopilotSensor(coordinator, "PoolCop.status.poolcop", ""),
-    ]
-
-    async_add_entities(sensors)
-
+    async_add_entities(entities)
 
 class PoolCopilotSensor(CoordinatorEntity, SensorEntity):
     """Representation of a PoolCopilot sensor."""
 
-    def __init__(self, coordinator, key: str, unit: str):
+    def __init__(self, coordinator, key: str) -> None:
+        """Initialize the sensor."""
         super().__init__(coordinator)
         self._key = key
-        clean_key = key.replace("PoolCop.", "").replace(".", "_")
-        self._attr_name = f"PoolCopilot {clean_key.replace('_', ' ')}".capitalize()
-        self._attr_translation_key = f"poolcopilot_{clean_key}"
-        self._attr_unique_id = self._attr_translation_key
-        self._attr_native_unit_of_measurement = unit
+        self._attr_name = f"PoolCopilot {key.replace('_', ' ').title()}"
+        self._attr_unique_id = f"poolcopilot_{key}"
 
     @property
-    def native_value(self):
-        """Return the value from nested data."""
-        value = get_nested(self.coordinator.data, self._key)
-        _LOGGER.debug("📦 Clé : %s → Valeur récupérée : %s", self._key, value)
-        return value
+    def native_value(self) -> Any:
+        """Return the state of the sensor."""
+        return self.coordinator.data.get(self._key)
+
+    @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        return self.coordinator.last_update_success
 
