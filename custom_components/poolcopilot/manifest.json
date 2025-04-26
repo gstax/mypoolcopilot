@@ -1,11 +1,14 @@
 {
   "domain": "poolcopilot",
-  "name": "My PoolCopilot",
+  "name": "PoolCopilot",
   "version": "0.1.0",
-  "documentation": "https://github.com/gstax/mypoolcopilot",
-  "requirements": [],
+  "documentation": "https://github.com/gstax/poolcopilot",
+  "issue_tracker": "https://github.com/gstax/poolcopilot/issues",
   "dependencies": [],
   "codeowners": ["@gstax"],
-  "iot_class": "cloud_polling"
+  "requirements": [],
+  "config_flow": true,
+  "iot_class": "cloud_polling",
+  "is_built_in": false
 }
 
