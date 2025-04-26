@@ -1,0 +1,12 @@
+{
+  "name": "MyPoolCopilot",
+  "content_in_root": true,
+  "domains": ["sensor"],
+  "homeassistant": "2025.4.0",
+  "iot_class": "cloud_polling",
+  "render_readme": true,
+  "file_name": "custom_components/poolcopilot/manifest.json",
+  "persistent_directory": "custom_components/poolcopilot",
+  "image": "images/icon.png"
+}
+
