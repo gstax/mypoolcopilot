@@ -1,13 +1,13 @@
 {
-  "title": "PoolCopilot",
+  "title": "MyPoolCopilot",
   "step": {
     "user": {
-      "title": "Configure PoolCopilot",
+      "title": "Configure MyPoolCopilot",
       "description": "No options required. Click 'Submit' to continue."
     }
   },
   "abort": {
-    "single_instance_allowed": "Only one instance of PoolCopilot is allowed."
+    "single_instance_allowed": "Only one instance of MyPoolCopilot is allowed."
   }
 }
 
