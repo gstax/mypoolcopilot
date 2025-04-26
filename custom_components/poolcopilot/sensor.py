@@ -44,8 +44,8 @@ class PoolCopilotSensor(CoordinatorEntity, SensorEntity):
         super().__init__(coordinator)
         self._key = sensor["key"]
         self._path = sensor["path"]
-        self._attr_unique_id = f"poolcopilot_{self._key}"
-        self._attr_translation_key = f"poolcopilot_{self._key}"
+        self._attr_unique_id = self._key
+        self._attr_translation_key = self._key
 
         if sensor["device_class"]:
             self._attr_device_class = sensor["device_class"]
