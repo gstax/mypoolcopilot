@@ -18,19 +18,19 @@ class PoolCopilotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
-            token = user_input.get("token")
-            if not token:
-                errors["base"] = "missing_token"
+            apikey = user_input.get("apikey")
+            if not apikey:
+                errors["base"] = "missing_apikey"
             else:
                 return self.async_create_entry(
                     title="PoolCopilot",
-                    data={"token": token},
+                    data={"apikey": apikey},
                 )
 
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema({
-                vol.Required("token"): str,
+                vol.Required("apikey"): str,
             }),
             errors=errors,
         )
