@@ -36,7 +36,7 @@ Custom integration for Home Assistant to connect to your PoolCopilot system.
 
 If you prefer, you can manually install the integration:
 
-1. Copy the folder `custom_components/poolcopilot/` into your Home Assistant `config/custom_components/` directory.
+1. Copy the folder `custom_components/mypoolcopilot/` into your Home Assistant `config/custom_components/` directory.
 2. Restart Home Assistant.
 3. Add the integration via the UI and provide your API Key.
 
