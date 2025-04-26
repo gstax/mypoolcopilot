@@ -15,8 +15,23 @@ class PoolCopilotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(self, user_input=None) -> FlowResult:
         """Handle a flow initiated by the user."""
-        if user_input is not None:
-            return self.async_create_entry(title="My PoolCopilot", data={})
+        errors = {}
 
-        return self.async_show_form(step_id="user", data_schema=vol.Schema({}))
+        if user_input is not None:
+            token = user_input.get("token")
+            if not token:
+                errors["base"] = "missing_token"
+            else:
+                return self.async_create_entry(
+                    title="PoolCopilot",
+                    data={"token": token},
+                )
+
+        return self.async_show_form(
+            step_id="user",
+            data_schema=vol.Schema({
+                vol.Required("token"): str,
+            }),
+            errors=errors,
+        )
 

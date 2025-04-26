@@ -21,14 +21,10 @@ PLATFORMS: list[str] = ["sensor"]
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up PoolCopilot from a config entry."""
     session = async_get_clientsession(hass)
+    token = entry.data["token"]
 
     async def async_update_data() -> dict[str, Any]:
         """Fetch data from PoolCopilot API."""
-        token_entity = hass.states.get("input_text.token_poolcopilot")
-        if not token_entity or not token_entity.state:
-            raise UpdateFailed("Missing or empty token from input_text.token_poolcopilot")
-
-        token = token_entity.state
         try:
             with async_timeout.timeout(10):
                 headers = {"PoolCop-Token": token}
