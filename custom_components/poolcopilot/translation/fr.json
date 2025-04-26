@@ -38,6 +38,18 @@
         "name": "État PoolCop"
       }
     }
+  },
+  "config": {
+    "title": "PoolCopilot",
+    "step": {
+      "user": {
+        "title": "Configurer PoolCopilot",
+        "description": "Aucune option requise. Cliquez sur 'Soumettre' pour continuer."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Une seule instance de PoolCopilot est autorisée."
+    }
   }
 }
 
