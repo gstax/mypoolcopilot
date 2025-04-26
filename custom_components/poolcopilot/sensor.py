@@ -30,11 +30,18 @@ async def async_setup_entry(hass, entry, async_add_entities):
     """Set up PoolCopilot sensors based on a config entry."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
 
-    entities = [
-        PoolCopilotSensor(coordinator, key)
-        for key in SENSOR_KEYS
-        if key in coordinator.data
-    ]
+    _LOGGER.debug("PoolCopilot coordinator data: %s", coordinator.data)
+
+    entities = []
+
+    if coordinator.data:
+        for key in SENSOR_KEYS:
+            if key in coordinator.data:
+                entities.append(PoolCopilotSensor(coordinator, key))
+            else:
+                _LOGGER.warning("Sensor key '%s' not found in API response", key)
+    else:
+        _LOGGER.warning("No data received from PoolCopilot API.")
 
     async_add_entities(entities)
 
