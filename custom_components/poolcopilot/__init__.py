@@ -16,21 +16,19 @@ from .const import DOMAIN, API_STATUS_URL
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS: list[str] = ["sensor"]  # ← On déclare les plateformes gérées
+PLATFORMS: list[str] = ["sensor"]
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up PoolCopilot from a config entry."""
-
-    token_entity = hass.states.get("input_text.token_poolcopilot")
-    if not token_entity:
-        _LOGGER.error("Token entity 'input_text.token_poolcopilot' not found.")
-        return False
-
-    token = token_entity.state
     session = async_get_clientsession(hass)
 
     async def async_update_data() -> dict[str, Any]:
         """Fetch data from PoolCopilot API."""
+        token_entity = hass.states.get("input_text.token_poolcopilot")
+        if not token_entity or not token_entity.state:
+            raise UpdateFailed("Missing or empty token from input_text.token_poolcopilot")
+
+        token = token_entity.state
         try:
             with async_timeout.timeout(10):
                 headers = {"PoolCop-Token": token}
@@ -38,7 +36,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     response.raise_for_status()
                     return await response.json()
         except (ClientError, asyncio.TimeoutError) as err:
-            raise UpdateFailed(f"Erreur lors de la récupération des données PoolCopilot : {err}") from err
+            raise UpdateFailed(f"Error fetching PoolCopilot data: {err}") from err
 
     coordinator = DataUpdateCoordinator(
         hass,
@@ -49,7 +47,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     await coordinator.async_refresh()
-
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
