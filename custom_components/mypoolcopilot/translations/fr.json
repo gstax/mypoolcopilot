@@ -1,40 +1,40 @@
 {
   "entity": {
     "sensor": {
-      "mypoolcopilot_temperature_water": {
+      "temperature_water": {
         "name": "Température de l'eau"
       },
-      "mypoolcopilot_temperature_air": {
+      "temperature_air": {
         "name": "Température de l'air"
       },
-      "mypoolcopilot_pressure": {
+      "pressure": {
         "name": "Pression"
       },
-      "mypoolcopilot_pH": {
+      "pH": {
         "name": "pH"
       },
-      "mypoolcopilot_orp": {
+      "orp": {
         "name": "ORP"
       },
-      "mypoolcopilot_ioniser": {
+      "ioniser": {
         "name": "Ioniseur"
       },
-      "mypoolcopilot_voltage": {
+      "voltage": {
         "name": "Tension système"
       },
-      "mypoolcopilot_waterlevel": {
+      "waterlevel": {
         "name": "Niveau d'eau"
       },
-      "mypoolcopilot_status_pump": {
+      "status_pump": {
         "name": "État de la pompe"
       },
-      "mypoolcopilot_status_pumpspeed": {
+      "status_pumpspeed": {
         "name": "Vitesse de la pompe"
       },
-      "mypoolcopilot_status_valveposition": {
+      "status_valveposition": {
         "name": "Position vanne"
       },
-      "mypoolcopilot_status_poolcop": {
+      "status_poolcop": {
         "name": "État PoolCop"
       }
     }
@@ -44,7 +44,7 @@
     "step": {
       "user": {
         "title": "Configurer MyPoolCopilot",
-        "description": "Aucune option requise. Cliquez sur 'Soumettre' pour continuer."
+        "description": "Saisissez la clé API, puis cliquez sur 'Valider'."
       }
     },
     "abort": {
