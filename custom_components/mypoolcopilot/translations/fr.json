@@ -1,54 +1,54 @@
 {
   "entity": {
     "sensor": {
-      "poolcopilot_temperature_water": {
+      "mypoolcopilot_temperature_water": {
         "name": "Température de l'eau"
       },
-      "poolcopilot_temperature_air": {
+      "mypoolcopilot_temperature_air": {
         "name": "Température de l'air"
       },
-      "poolcopilot_pressure": {
+      "mypoolcopilot_pressure": {
         "name": "Pression"
       },
-      "poolcopilot_pH": {
+      "mypoolcopilot_pH": {
         "name": "pH"
       },
-      "poolcopilot_orp": {
+      "mypoolcopilot_orp": {
         "name": "ORP"
       },
-      "poolcopilot_ioniser": {
+      "mypoolcopilot_ioniser": {
         "name": "Ioniseur"
       },
-      "poolcopilot_voltage": {
+      "mypoolcopilot_voltage": {
         "name": "Tension système"
       },
-      "poolcopilot_waterlevel": {
+      "mypoolcopilot_waterlevel": {
         "name": "Niveau d'eau"
       },
-      "poolcopilot_status_pump": {
+      "mypoolcopilot_status_pump": {
         "name": "État de la pompe"
       },
-      "poolcopilot_status_pumpspeed": {
+      "mypoolcopilot_status_pumpspeed": {
         "name": "Vitesse de la pompe"
       },
-      "poolcopilot_status_valveposition": {
+      "mypoolcopilot_status_valveposition": {
         "name": "Position vanne"
       },
-      "poolcopilot_status_poolcop": {
+      "mypoolcopilot_status_poolcop": {
         "name": "État PoolCop"
       }
     }
   },
   "config": {
-    "title": "PoolCopilot",
+    "title": "MyPoolCopilot",
     "step": {
       "user": {
-        "title": "Configurer PoolCopilot",
+        "title": "Configurer MyPoolCopilot",
         "description": "Aucune option requise. Cliquez sur 'Soumettre' pour continuer."
       }
     },
     "abort": {
-      "single_instance_allowed": "Une seule instance de PoolCopilot est autorisée."
+      "single_instance_allowed": "Une seule instance de MyPoolCopilot est autorisée."
     }
   }
 }
