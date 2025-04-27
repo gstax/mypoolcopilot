@@ -10,6 +10,6 @@
   "config_flow": true,
   "iot_class": "cloud_polling",
   "is_built_in": false,
-  "icon": "../../images/icon.png"
+  "icon": "/local/images/icon.png"
 }
 
