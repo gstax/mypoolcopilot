@@ -1,54 +1,105 @@
-"""Sensor platform for MyPoolCopilot."""
-from homeassistant.helpers.entity import Entity
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from homeassistant.components.sensor import SensorEntity
+"""Sensor platform for MyPoolCopilot integration."""
+from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
+from homeassistant.const import UnitOfTemperature, UnitOfPressure, UnitOfElectricPotential, PERCENTAGE
+
 from .const import DOMAIN
 
-# Définition des capteurs disponibles
-SENSOR_TYPES = [
-    ("temperature_water", "Water Temperature", "°C", "temperature"),
-    ("temperature_air", "Air Temperature", "°C", "temperature"),
-    ("pressure", "Pressure", "bar", "pressure"),
-    ("pH", "pH Level", None, None),
-    ("orp", "ORP", "mV", None),
-    ("ioniser", "Ioniser Status", None, None),
-    ("voltage", "Voltage", "V", "voltage"),
-    ("waterlevel", "Water Level", "%", None),
-    ("status_pump", "Pump Status", None, None),
-    ("status_pumpspeed", "Pump Speed", "%", None),
-    ("status_valveposition", "Valve Position", None, None),
-    ("status_poolcop", "PoolCop Status", None, None),
-]
+SENSOR_TYPES = {
+    "temperature_air": {
+        "name": "Air Temperature",
+        "device_class": SensorDeviceClass.TEMPERATURE,
+        "unit_of_measurement": UnitOfTemperature.CELSIUS,
+    },
+    "temperature_water": {
+        "name": "Water Temperature",
+        "device_class": SensorDeviceClass.TEMPERATURE,
+        "unit_of_measurement": UnitOfTemperature.CELSIUS,
+    },
+    "pressure": {
+        "name": "Pressure",
+        "device_class": SensorDeviceClass.PRESSURE,
+        "unit_of_measurement": UnitOfPressure.BAR,
+    },
+    "pH": {
+        "name": "pH Level",
+        "device_class": None,
+        "unit_of_measurement": None,
+    },
+    "orp": {
+        "name": "ORP",
+        "device_class": None,
+        "unit_of_measurement": "mV",
+    },
+    "ioniser": {
+        "name": "Ioniser Status",
+        "device_class": None,
+        "unit_of_measurement": None,
+    },
+    "voltage": {
+        "name": "Voltage",
+        "device_class": SensorDeviceClass.VOLTAGE,
+        "unit_of_measurement": UnitOfElectricPotential.VOLT,
+    },
+    "waterlevel": {
+        "name": "Water Level",
+        "device_class": None,
+        "unit_of_measurement": PERCENTAGE,
+    },
+    "status_pump": {
+        "name": "Pump Status",
+        "device_class": None,
+        "unit_of_measurement": None,
+    },
+    "status_pumpspeed": {
+        "name": "Pump Speed",
+        "device_class": None,
+        "unit_of_measurement": PERCENTAGE,
+    },
+    "status_valveposition": {
+        "name": "Valve Position",
+        "device_class": None,
+        "unit_of_measurement": None,
+    },
+    "status_poolcop": {
+        "name": "PoolCop Status",
+        "device_class": None,
+        "unit_of_measurement": None,
+    },
+}
 
+async def async_setup_entry(hass, entry, async_add_entities):
+    """Set up MyPoolCopilot sensors."""
+    coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
-    """Set up MyPoolCopilot sensors from a config entry."""
-    coordinator = hass.data[DOMAIN][config_entry.entry_id]
-    sensors = []
+    entities = []
+    for key, description in SENSOR_TYPES.items():
+        entities.append(MyPoolCopilotSensor(coordinator, key, description))
 
-    for sensor_type, name, unit, device_class in SENSOR_TYPES:
-        sensors.append(
-            MyPoolCopilotSensor(coordinator, sensor_type, name, unit, device_class)
-        )
+    async_add_entities(entities)
 
-    async_add_entities(sensors)
+class MyPoolCopilotSensor(SensorEntity):
+    """Representation of a MyPoolCopilot sensor."""
 
-
-class MyPoolCopilotSensor(CoordinatorEntity, SensorEntity):
-    """Representation of a MyPoolCopilot Sensor."""
-
-    def __init__(self, coordinator, sensor_type, name, unit, device_class):
+    def __init__(self, coordinator, key, description):
         """Initialize the sensor."""
-        super().__init__(coordinator)
-        self._sensor_type = sensor_type
-        self._attr_name = name
-        self._attr_native_unit_of_measurement = unit
-        self._attr_device_class = device_class
-        self._attr_unique_id = sensor_type
-        self._attr_translation_key = sensor_type
+        self.coordinator = coordinator
+        self.key = key
+        self._attr_name = description["name"]
+        self._attr_unique_id = f"mypoolcopilot_{key}"
+        self._attr_device_class = description["device_class"]
+        self._attr_native_unit_of_measurement = description["unit_of_measurement"]
+
+    @property
+    def available(self):
+        """Return True if entity is available."""
+        return self.coordinator.last_update_success
 
     @property
     def native_value(self):
-        """Return the sensor value."""
-        return self.coordinator.data.get(self._sensor_type)
+        """Return the state of the sensor."""
+        return self.coordinator.data.get(self.key)
+
+    async def async_update(self):
+        """Update the entity."""
+        await self.coordinator.async_request_refresh()
 
