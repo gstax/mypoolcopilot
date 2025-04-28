@@ -1,65 +1,45 @@
 # MyPoolCopilot
 
-[![Install with HACS](https://img.shields.io/badge/HACS-Install-41BDF5?logo=home-assistant&style=for-the-badge)](https://github.com/gstax/mypoolcopilot)
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz/)
+[![GitHub Release](https://img.shields.io/github/v/release/gstax/mypoolcopilot)](https://github.com/gstax/mypoolcopilot/releases)
 
-Custom integration for Home Assistant to connect to your PoolCopilot system.
-
-## ✨ Features
-
-- Water Temperature
-- Air Temperature
-- Pool Pressure
-- pH Level
-- ORP (Oxidation-Reduction Potential)
-- Ioniser Status
-- Voltage Level
-- Water Level
-- Pump Status
-- Pump Speed
-- Valve Position
-- PoolCopilot System Status
-
-## 📦 Installation via HACS
-
-1. Go to **HACS > Integrations > 3 dots menu > Custom Repositories**.
-2. Add the repository URL:
-
-
-- Choose **Integration** as the category.
-
-3. Search for **MyPoolCopilot** in HACS and install it.
-4. Restart Home Assistant if requested.
-5. Add the integration via **Settings > Devices & Services > Add Integration**.
-6. Enter your **API Key** when prompted.
-
-## 🛠 Manual Installation (Alternative)
-
-If you prefer, you can manually install the integration:
-
-1. Copy the folder `custom_components/mypoolcopilot/` into your Home Assistant `config/custom_components/` directory.
-2. Restart Home Assistant.
-3. Add the integration via the UI and provide your API Key.
-
-## ⚙️ Configuration
-
-Only one field is required:
-
-- **API Key**:  
-The key provided by your PoolCopilot management interface.
-
-Once set up, the integration will automatically handle token refresh and create all entities.
-
-## 📜 License
-
-This project is licensed under the [MIT License](LICENSE).
-
-## ❗ Disclaimer
-
-This project is a **personal** and **unofficial** integration for PoolCopilot systems.  
-It is **not affiliated with or endorsed by PoolCopilot** or any of its parent companies.  
-All trademarks and registered trademarks are the property of their respective owners.
+MyPoolCopilot is a custom integration for Home Assistant that allows you to monitor your PoolCopilot system.
 
 ---
 
-🔮 See the [ROADMAP](ROADMAP.md) for planned improvements and future features.
+## Installation
+
+1. Add this repository as a custom repository in HACS (type: Integration).
+2. Install the **MyPoolCopilot** integration from HACS.
+3. Restart Home Assistant.
+4. Configure the integration by providing your PoolCopilot API Key.
+
+⚠️ **Important**: The PoolCopilot API token expires after about 50 minutes.
+You must set up an automation in Home Assistant to refresh the API token regularly and update it dynamically.
+
+---
+
+## Features
+
+- Displays pool water temperature, air temperature, pressure, pH, ORP, ioniser status, and system voltage.
+- Shows pump status, pump speed, valve position, and PoolCop operational status.
+- Full support for English and French translations.
+
+---
+
+## Notes
+
+- Only one instance of the integration is allowed.
+- Automatic token refresh is not implemented yet inside the integration.
+
+---
+
+## Future improvements
+
+- Native support for automatic token refresh.
+- More device classes for better UI integration.
+
+---
+
+Enjoy monitoring your pool with Home Assistant! 🏊
 
