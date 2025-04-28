@@ -4,14 +4,14 @@
 
 MyPoolCopilot is a custom integration for Home Assistant to monitor your PoolCopilot system easily and efficiently.
 
-## 🚀 Features
+## Features
 
 - Monitor water and air temperature.
 - Display pool pressure, pH, ORP, ionizer status, and system voltage.
 - Monitor pump status, pump speed, valve position, and PoolCop operational status.
 - Full support for English and French languages.
 
-## 🛠 Installation
+## Installation
 
 1. Go to HACS ➔ Integrations ➔ "+", and add `https://github.com/gstax/mypoolcopilot` as a custom repository.
 2. Install **MyPoolCopilot** from HACS.
@@ -19,11 +19,11 @@ MyPoolCopilot is a custom integration for Home Assistant to monitor your PoolCop
 4. Add the MyPoolCopilot integration via **Settings ➔ Devices & Services ➔ Add Integration**.
 5. Enter your PoolCopilot API Key.
 
-⚠️ **Note:**  
+**Note:**  
 The PoolCopilot API token expires after about 15 minutes.  
 You must configure an automation to refresh the token regularly (see below).
 
-## 🧩 Automatic PoolCopilot Token Refresh
+##  Automatic PoolCopilot Token Refresh
 
 Because the PoolCopilot API token expires quickly, you need to implement an automatic refresh system.
 
@@ -55,6 +55,17 @@ Create `/config/scripts/update_token_mypoolcopilot.sh` with the following conten
 APIKEY="YOUR_API_KEY"
 HA_TOKEN="YOUR_LONG_LIVED_ACCESS_TOKEN"
 HA_URL="http://homeassistant.local:8123"
+
+# **Note:**  
+# You must use a Home Assistant **Long-Lived Access Token**.  
+# To generate one, go to **Home Assistant Profile page** ➔ [http://homeassistant.local:8123/profile](http://homeassistant.local:8123/profile) ➔ scroll down to "Long-Lived Access Tokens" ➔ click "Create Token".
+
+HA_URL="http://homeassistant.local:8123"
+
+# **Important:**  
+# If your Home Assistant is not accessible at `http://homeassistant.local:8123`,  
+# you must edit the `HA_URL` variable in the script to match your actual URL or IP address.
+
 
 # Retrieve new PoolCopilot token
 NEW_TOKEN=$(curl -s -X POST "https://poolcopilot.com/api/v1/token" \
@@ -103,22 +114,22 @@ action:
 mode: single
 ```
 
-## ✅ Result
+## Result
 
 - The PoolCopilot token will be refreshed automatically every 5 minutes.
 - The MyPoolCopilot integration will always have a valid token.
 - No manual intervention required.
 
-## 📈 Future Improvements
+## Future Improvements
 
 - Native automatic token refresh inside the MyPoolCopilot integration.
 - Additional sensor device classes for better Home Assistant dashboard integration.
 - Improved installation experience.
 
-## 📢 Notes
+## Notes
 
 - Only one instance of MyPoolCopilot can be configured per Home Assistant installation.
 - This is a custom integration and is not affiliated with PoolCopilot or Home Assistant.
 
-Enjoy monitoring your pool with Home Assistant! 🏊‍♂️
+Enjoy monitoring your pool with Home Assistant!
 
