@@ -1,7 +1,7 @@
 {
   "domain": "mypoolcopilot",
   "name": "MyPoolCopilot ",
-  "version": "2.1.3",
+  "version": "3.0.2",
   "documentation": "https://github.com/gstax/mypoolcopilot",
   "issue_tracker": "https://github.com/gstax/mypoolcopilot/issues",
   "dependencies": [],
