@@ -39,7 +39,7 @@ shell_command: !include shell_commands.yaml
 
 ### 2. Create `shell_commands.yaml`
 
-In your `/config/` directory, create a file called `shell_commands.yaml` containing:
+In your `/config/scripts` directory, create a file called `shell_commands.yaml` containing:
 
 ```yaml
 update_token_mypoolcopilot: /config/scripts/update_token_mypoolcopilot.sh
