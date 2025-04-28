@@ -1,57 +1,62 @@
 {
-  "entity": {
-    "sensor": {
-      "temperature_water": {
-        "name": "Water Temperature"
-      },
-      "temperature_air": {
-        "name": "Air Temperature"
-      },
-      "pressure": {
-        "name": "Pressure"
-      },
-      "pH": {
-        "name": "pH"
-      },
-      "orp": {
-        "name": "ORP"
-      },
-      "ioniser": {
-        "name": "Ioniser"
-      },
-      "voltage": {
-        "name": "System Voltage"
-      },
-      "waterlevel": {
-        "name": "Water Level"
-      },
-      "status_pump": {
-        "name": "Pump Status"
-      },
-      "status_pumpspeed": {
-        "name": "Pump Speed"
-      },
-      "status_valveposition": {
-        "name": "Valve Position"
-      },
-      "status_poolcop": {
-        "name": "PoolCop Status"
-      }
-    }
-  },
-  "config": {
-    "step": {
-      "user": {
-        "title": "Configure MyPoolCopilot",
-        "description": "Enter your PoolCopilot API Key to connect.",
-        "data": {
-          "apikey": "API Key"
+    "config": {
+        "step": {
+            "user": {
+                "title": "MyPoolCopilot Setup",
+                "description": "Enter your PoolCopilot API Key",
+                "data": {
+                    "apikey": "API Key"
+                }
+            }
+        },
+        "error": {
+            "cannot_connect": "Cannot connect.",
+            "invalid_auth": "Invalid authentication.",
+            "unknown": "Unknown error."
+        },
+        "abort": {
+            "already_configured": "PoolCopilot is already configured."
         }
-      }
     },
-    "abort": {
-      "single_instance_allowed": "Only one instance of MyPoolCopilot is allowed."
+    "entity": {
+        "sensor": {
+            "air_temperature": {
+                "name": "Air Temperature"
+            },
+            "water_temperature": {
+                "name": "Water Temperature"
+            },
+            "pressure": {
+                "name": "Pressure"
+            },
+            "pH": {
+                "name": "pH Level"
+            },
+            "orp": {
+                "name": "ORP"
+            },
+            "ioniser": {
+                "name": "Ioniser Status"
+            },
+            "voltage": {
+                "name": "Voltage"
+            },
+            "waterlevel": {
+                "name": "Water Level"
+            },
+            "status_pump": {
+                "name": "Pump Status"
+            },
+            "status_pumpspeed": {
+                "name": "Pump Speed"
+            },
+            "status_valveposition": {
+                "name": "Valve Position"
+            },
+            "status_poolcop": {
+                "name": "PoolCop Status"
+            }
+        }
     }
-  }
 }
 

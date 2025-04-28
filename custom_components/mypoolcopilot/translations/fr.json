@@ -1,57 +1,62 @@
 {
-  "entity": {
-    "sensor": {
-      "temperature_water": {
-        "name": "Température de l'eau"
-      },
-      "temperature_air": {
-        "name": "Température de l'air"
-      },
-      "pressure": {
-        "name": "Pression"
-      },
-      "pH": {
-        "name": "pH"
-      },
-      "orp": {
-        "name": "ORP"
-      },
-      "ioniser": {
-        "name": "Ioniseur"
-      },
-      "voltage": {
-        "name": "Tension système"
-      },
-      "waterlevel": {
-        "name": "Niveau d'eau"
-      },
-      "status_pump": {
-        "name": "État de la pompe"
-      },
-      "status_pumpspeed": {
-        "name": "Vitesse de la pompe"
-      },
-      "status_valveposition": {
-        "name": "Position de la vanne"
-      },
-      "status_poolcop": {
-        "name": "État du PoolCop"
-      }
-    }
-  },
-  "config": {
-    "step": {
-      "user": {
-        "title": "Configurer MyPoolCopilot",
-        "description": "Saisissez votre clé API PoolCopilot pour vous connecter.",
-        "data": {
-          "apikey": "Clé API"
+    "config": {
+        "step": {
+            "user": {
+                "title": "MyPoolCopilot Setup",
+                "description": "Enter your PoolCopilot API Key",
+                "data": {
+                    "apikey": "Clé API"
+                }
+            }
+        },
+        "error": {
+            "cannot_connect": "Impossible de se connecter.",
+            "invalid_auth": "Authentification invalide.",
+            "unknown": "Erreur inconnue."
+        },
+        "abort": {
+            "already_configured": "Le PoolCopilot est déjà configuré."
         }
-      }
     },
-    "abort": {
-      "single_instance_allowed": "Une seule instance de MyPoolCopilot est autorisée."
+    "entity": {
+        "sensor": {
+            "air_temperature": {
+                "name": "Température de l'air"
+            },
+            "water_temperature": {
+                "name": "Température de l'eau"
+            },
+            "pressure": {
+                "name": "Pression"
+            },
+            "pH": {
+                "name": "Niveau de pH"
+            },
+            "orp": {
+                "name": "ORP"
+            },
+            "ioniser": {
+                "name": "Statut de l'ioniseur"
+            },
+            "voltage": {
+                "name": "Tension"
+            },
+            "waterlevel": {
+                "name": "Niveau d'eau"
+            },
+            "status_pump": {
+                "name": "Statut de la pompe"
+            },
+            "status_pumpspeed": {
+                "name": "Vitesse de la pompe"
+            },
+            "status_valveposition": {
+                "name": "Position de la vanne"
+            },
+            "status_poolcop": {
+                "name": "Statut du PoolCop"
+            }
+        }
     }
-  }
 }
 
