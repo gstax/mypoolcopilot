@@ -1,42 +1,54 @@
+"""Sensor platform for MyPoolCopilot."""
+from homeassistant.helpers.entity import Entity
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.components.sensor import SensorEntity
-from homeassistant.const import UnitOfTemperature
-
 from .const import DOMAIN
 
-class MyPoolCopilotSensor(SensorEntity):
-    """Representation of a MyPoolCopilot sensor."""
+# Définition des capteurs disponibles
+SENSOR_TYPES = [
+    ("temperature_water", "Water Temperature", "°C", "temperature"),
+    ("temperature_air", "Air Temperature", "°C", "temperature"),
+    ("pressure", "Pressure", "bar", "pressure"),
+    ("pH", "pH Level", None, None),
+    ("orp", "ORP", "mV", None),
+    ("ioniser", "Ioniser Status", None, None),
+    ("voltage", "Voltage", "V", "voltage"),
+    ("waterlevel", "Water Level", "%", None),
+    ("status_pump", "Pump Status", None, None),
+    ("status_pumpspeed", "Pump Speed", "%", None),
+    ("status_valveposition", "Valve Position", None, None),
+    ("status_poolcop", "PoolCop Status", None, None),
+]
 
-    def __init__(self, coordinator, sensor_id, sensor_name, unit, device_class=None):
+
+async def async_setup_entry(hass, config_entry, async_add_entities):
+    """Set up MyPoolCopilot sensors from a config entry."""
+    coordinator = hass.data[DOMAIN][config_entry.entry_id]
+    sensors = []
+
+    for sensor_type, name, unit, device_class in SENSOR_TYPES:
+        sensors.append(
+            MyPoolCopilotSensor(coordinator, sensor_type, name, unit, device_class)
+        )
+
+    async_add_entities(sensors)
+
+
+class MyPoolCopilotSensor(CoordinatorEntity, SensorEntity):
+    """Representation of a MyPoolCopilot Sensor."""
+
+    def __init__(self, coordinator, sensor_type, name, unit, device_class):
         """Initialize the sensor."""
-        self.coordinator = coordinator
-        self._attr_name = sensor_name
+        super().__init__(coordinator)
+        self._sensor_type = sensor_type
+        self._attr_name = name
         self._attr_native_unit_of_measurement = unit
         self._attr_device_class = device_class
-        self._attr_unique_id = sensor_id  # Only sensor_id
-        self._attr_should_poll = False
-
-    @property
-    def available(self):
-        """Return True if entity is available."""
-        return self.coordinator.last_update_success
+        self._attr_unique_id = sensor_type
+        self._attr_translation_key = sensor_type
 
     @property
     def native_value(self):
-        """Return the current value."""
-        return self.coordinator.data.get(self._attr_unique_id)
-
-    @property
-    def device_info(self):
-        """Return device information for grouping sensors."""
-        return {
-            "identifiers": {(DOMAIN, "mypoolcopilot_system")},
-            "name": "MyPoolCopilot",
-            "manufacturer": "MyPoolCopilot",
-            "model": "PoolCopilot Integration",
-            "entry_type": "service",
-        }
-
-    async def async_update(self):
-        """Update the sensor."""
-        await self.coordinator.async_request_refresh()
+        """Return the sensor value."""
+        return self.coordinator.data.get(self._sensor_type)
 
