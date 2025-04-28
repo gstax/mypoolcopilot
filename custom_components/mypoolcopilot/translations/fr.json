@@ -32,19 +32,21 @@
         "name": "Vitesse de la pompe"
       },
       "status_valveposition": {
-        "name": "Position vanne"
+        "name": "Position de la vanne"
       },
       "status_poolcop": {
-        "name": "État PoolCop"
+        "name": "État du PoolCop"
       }
     }
   },
   "config": {
-    "title": "MyPoolCopilot",
     "step": {
       "user": {
         "title": "Configurer MyPoolCopilot",
-        "description": "Saisissez la clé API, puis cliquez sur 'Valider'."
+        "description": "Saisissez votre clé API PoolCopilot pour vous connecter.",
+        "data": {
+          "apikey": "Clé API"
+        }
       }
     },
     "abort": {
