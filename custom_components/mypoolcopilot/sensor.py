@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -7,6 +9,8 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
+
+_LOGGER = logging.getLogger(__name__)
 
 SENSORS = {
     "orp": ("ORP", "mV"),
@@ -37,9 +41,13 @@ class PoolCopilotSensor(CoordinatorEntity, SensorEntity):
         self._key = key
         self._attr_name = name
         self._attr_native_unit_of_measurement = unit
-        self._attr_unique_id = key  # <<< CORRIGÉ : pas de "mypoolcopilot_" devant
+        self._attr_unique_id = key
 
     @property
     def native_value(self):
-        return self.coordinator.data.get(self._key)
+        status = self.coordinator.data.get("status", {})
+        value = status.get(self._key)
+        if value is None:
+            _LOGGER.debug("Clé %s introuvable dans status : %s", self._key, status)
+        return value
 
