@@ -1,62 +1,38 @@
 {
-    "config": {
-        "step": {
-            "user": {
-                "title": "MyPoolCopilot Setup",
-                "description": "Enter your PoolCopilot API Key",
-                "data": {
-                    "apikey": "Clé API"
-                }
-            }
-        },
-        "error": {
-            "cannot_connect": "Impossible de se connecter.",
-            "invalid_auth": "Authentification invalide.",
-            "unknown": "Erreur inconnue."
-        },
-        "abort": {
-            "already_configured": "Le PoolCopilot est déjà configuré."
+  "config": {
+    "step": {
+      "user": {
+        "title": "MyPoolCopilot Setup",
+        "description": "Saisissez votre clé API PoolCopilot",
+        "data": {
+          "apikey": "Clé API"
         }
+      }
     },
-    "entity": {
-        "sensor": {
-            "air_temperature": {
-                "name": "Température de l'air"
-            },
-            "water_temperature": {
-                "name": "Température de l'eau"
-            },
-            "pressure": {
-                "name": "Pression"
-            },
-            "pH": {
-                "name": "Niveau de pH"
-            },
-            "orp": {
-                "name": "ORP"
-            },
-            "ioniser": {
-                "name": "Statut de l'ioniseur"
-            },
-            "voltage": {
-                "name": "Tension"
-            },
-            "waterlevel": {
-                "name": "Niveau d'eau"
-            },
-            "status_pump": {
-                "name": "Statut de la pompe"
-            },
-            "status_pumpspeed": {
-                "name": "Vitesse de la pompe"
-            },
-            "status_valveposition": {
-                "name": "Position de la vanne"
-            },
-            "status_poolcop": {
-                "name": "Statut du PoolCop"
-            }
-        }
+    "error": {
+      "cannot_connect": "Impossible de se connecter.",
+      "invalid_auth": "Authentification invalide.",
+      "unknown": "Erreur inconnue."
+    },
+    "abort": {
+      "already_configured": "Le PoolCopilot est déjà configuré."
     }
+  },
+  "entity": {
+    "sensor": {
+      "air_temperature": { "name": "Température de l'air" },
+      "ioniser_status": { "name": "Statut de l'ioniseur" },
+      "orp": { "name": "Potentiel RedOx" },
+      "ph_level": { "name": "Niveau de pH" },
+      "poolcop_status": { "name": "Statut du PoolCop" },
+      "pressure": { "name": "Pression" },
+      "pump_speed": { "name": "Vitesse de la pompe" },
+      "pump_status": { "name": "Statut de la pompe" },
+      "valve_position": { "name": "Position de la vanne" },
+      "voltage": { "name": "Tension" },
+      "water_level": { "name": "Niveau d'eau" },
+      "water_temperature": { "name": "Température de l'eau" }
+    }
+  }
 }
 

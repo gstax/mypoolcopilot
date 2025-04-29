@@ -1,62 +1,38 @@
 {
-    "config": {
-        "step": {
-            "user": {
-                "title": "MyPoolCopilot Setup",
-                "description": "Enter your PoolCopilot API Key",
-                "data": {
-                    "apikey": "API Key"
-                }
-            }
-        },
-        "error": {
-            "cannot_connect": "Cannot connect.",
-            "invalid_auth": "Invalid authentication.",
-            "unknown": "Unknown error."
-        },
-        "abort": {
-            "already_configured": "PoolCopilot is already configured."
+  "config": {
+    "step": {
+      "user": {
+        "title": "MyPoolCopilot Setup",
+        "description": "Enter your PoolCopilot API Key",
+        "data": {
+          "apikey": "API Key"
         }
+      }
     },
-    "entity": {
-        "sensor": {
-            "air_temperature": {
-                "name": "Air Temperature"
-            },
-            "water_temperature": {
-                "name": "Water Temperature"
-            },
-            "pressure": {
-                "name": "Pressure"
-            },
-            "pH": {
-                "name": "pH Level"
-            },
-            "orp": {
-                "name": "ORP"
-            },
-            "ioniser": {
-                "name": "Ioniser Status"
-            },
-            "voltage": {
-                "name": "Voltage"
-            },
-            "waterlevel": {
-                "name": "Water Level"
-            },
-            "status_pump": {
-                "name": "Pump Status"
-            },
-            "status_pumpspeed": {
-                "name": "Pump Speed"
-            },
-            "status_valveposition": {
-                "name": "Valve Position"
-            },
-            "status_poolcop": {
-                "name": "PoolCop Status"
-            }
-        }
+    "error": {
+      "cannot_connect": "Cannot connect.",
+      "invalid_auth": "Invalid authentication.",
+      "unknown": "Unknown error."
+    },
+    "abort": {
+      "already_configured": "PoolCopilot is already configured."
     }
+  },
+  "entity": {
+    "sensor": {
+      "air_temperature": { "name": "Air Temperature" },
+      "ioniser_status": { "name": "Ioniser Status" },
+      "orp": { "name": "ORP" },
+      "ph_level": { "name": "pH Level" },
+      "poolcop_status": { "name": "PoolCop Status" },
+      "pressure": { "name": "Pressure" },
+      "pump_speed": { "name": "Pump Speed" },
+      "pump_status": { "name": "Pump Status" },
+      "valve_position": { "name": "Valve Position" },
+      "voltage": { "name": "Voltage" },
+      "water_level": { "name": "Water Level" },
+      "water_temperature": { "name": "Water Temperature" }
+    }
+  }
 }
 
