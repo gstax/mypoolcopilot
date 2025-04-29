@@ -26,7 +26,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     async def async_update_data() -> dict[str, Any]:
         """Fetch data from PoolCopilot API."""
-
         try:
             # 1. Récupérer un nouveau token
             with async_timeout.timeout(10):
@@ -38,13 +37,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     token = result.get("token")
                     if not token:
                         raise UpdateFailed("Token not received from PoolCopilot API.")
+                    _LOGGER.debug("Token received: %s", token)
 
             # 2. Interroger /status avec ce token
             with async_timeout.timeout(10):
                 headers = {"PoolCop-Token": token}
                 async with session.get("https://poolcopilot.com/api/v1/status", headers=headers) as response:
                     response.raise_for_status()
-                    return await response.json()
+                    full_data = await response.json()
+                    _LOGGER.debug("Received /status data: %s", full_data)
+                    return full_data.get("data", {})  # ✅ important
 
         except (ClientError, asyncio.TimeoutError) as err:
             raise UpdateFailed(f"Error fetching PoolCopilot data: {err}") from err
@@ -61,8 +63,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-
     return True
+
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""

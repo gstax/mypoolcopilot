@@ -72,9 +72,8 @@ class MyPoolCopilotSensor(Entity):
         return self.coordinator.last_update_success
 
     async def async_update(self):
-        """Manually triggered update."""
         _LOGGER.debug(
-            "[%s] Fetching state, coordinator data = %s",
+            "[%s] async_update: coordinator.data = %s",
             self._key,
             self.coordinator.data,
         )
