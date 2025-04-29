@@ -95,9 +95,11 @@ class MyPoolCopilotSensor(SensorEntity):
         return self.coordinator.last_update_success
 
     @property
-    def native_value(self):
+    def native_value(self) -> Any:
         """Return the state of the sensor."""
-        return self.coordinator.data.get(self.key)
+        if not self.coordinator.data:
+            return None
+        return self.coordinator.data.get("mypoolcopilot", {}).get(self.key)
 
     async def async_update(self):
         """Update the entity."""
