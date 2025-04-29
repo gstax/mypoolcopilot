@@ -1,6 +1,9 @@
 """Sensor platform for MyPoolCopilot."""
 from homeassistant.helpers.entity import Entity
 from homeassistant.const import UnitOfTemperature
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .const import DOMAIN
 
 SENSOR_TYPES = {
@@ -18,49 +21,53 @@ SENSOR_TYPES = {
     "water_temperature": {"name": "Water Temperature", "unit": UnitOfTemperature.CELSIUS},
 }
 
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    """Set up the MyPoolCopilot sensors."""
-    data = hass.data[DOMAIN]
-    sensors = []
-    for key, value in SENSOR_TYPES.items():
-        sensors.append(MyPoolCopilotSensor(data, key, value))
+
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
+    """Set up MyPoolCopilot sensors from a config entry."""
+    coordinator = hass.data[DOMAIN][entry.entry_id]
+    sensors = [
+        MyPoolCopilotSensor(coordinator, key, description)
+        for key, description in SENSOR_TYPES.items()
+    ]
     async_add_entities(sensors, True)
+
 
 class MyPoolCopilotSensor(Entity):
     """Representation of a MyPoolCopilot Sensor."""
 
-    def __init__(self, data, key, description):
-        """Initialize the sensor."""
-        self._data = data
+    def __init__(self, coordinator, key, description):
+        self.coordinator = coordinator
         self._key = key
         self._name = f"MyPoolCopilot {description['name']}"
         self._unit = description["unit"]
-        self._state = None
         self._unique_id = f"mypoolcopilot_{key}"
+        self._attr_should_poll = False
 
     @property
     def name(self):
-        """Return the name of the sensor."""
         return self._name
 
     @property
     def unique_id(self):
-        """Return a unique ID."""
         return self._unique_id
 
     @property
     def state(self):
-        """Return the state of the sensor."""
-        return self._state
+        return self.coordinator.data.get(self._key)
 
     @property
     def unit_of_measurement(self):
-        """Return the unit of measurement."""
         return self._unit
 
+    @property
+    def available(self):
+        return self.coordinator.last_update_success
+
     async def async_update(self):
-        """Fetch new state data for the sensor."""
-        await self._data.async_update()
-        if self._data.data:
-            self._state = self._data.data.get(self._key)
+        """Manually triggered update."""
+        await self.coordinator.async_request_refresh()
 
