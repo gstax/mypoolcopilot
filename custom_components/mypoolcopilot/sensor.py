@@ -1,4 +1,7 @@
 """Sensor platform for MyPoolCopilot integration."""
+
+from typing import Any
+
 from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
 from homeassistant.const import UnitOfTemperature, UnitOfPressure, UnitOfElectricPotential, PERCENTAGE
 
