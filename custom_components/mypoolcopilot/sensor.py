@@ -25,7 +25,6 @@ SENSOR_TYPES = {
     "water_temperature": {"name": "Water Temperature", "unit": UnitOfTemperature.CELSIUS},
 }
 
-
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -38,7 +37,6 @@ async def async_setup_entry(
         for key, description in SENSOR_TYPES.items()
     ]
     async_add_entities(sensors, True)
-
 
 class MyPoolCopilotSensor(Entity):
     """Representation of a MyPoolCopilot Sensor."""
@@ -72,8 +70,9 @@ class MyPoolCopilotSensor(Entity):
         return self.coordinator.last_update_success
 
     async def async_update(self):
+        """Manually triggered update."""
         _LOGGER.debug(
-            "[%s] async_update: coordinator.data = %s",
+            "[%s] Fetching state, coordinator data = %s",
             self._key,
             self.coordinator.data,
         )
