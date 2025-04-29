@@ -1,10 +1,14 @@
 """Sensor platform for MyPoolCopilot."""
+import logging
+
 from homeassistant.helpers.entity import Entity
 from homeassistant.const import UnitOfTemperature
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .const import DOMAIN
+
+_LOGGER = logging.getLogger(__name__)
 
 SENSOR_TYPES = {
     "air_temperature": {"name": "Air Temperature", "unit": UnitOfTemperature.CELSIUS},
@@ -42,7 +46,7 @@ class MyPoolCopilotSensor(Entity):
     def __init__(self, coordinator, key, description):
         self.coordinator = coordinator
         self._key = key
-        self._name = f"MyPoolCopilot {description['name']}"
+        self._name = description["name"]
         self._unit = description["unit"]
         self._unique_id = f"mypoolcopilot_{key}"
         self._attr_should_poll = False
@@ -69,5 +73,10 @@ class MyPoolCopilotSensor(Entity):
 
     async def async_update(self):
         """Manually triggered update."""
+        _LOGGER.debug(
+            "[%s] Fetching state, coordinator data = %s",
+            self._key,
+            self.coordinator.data,
+        )
         await self.coordinator.async_request_refresh()
 
