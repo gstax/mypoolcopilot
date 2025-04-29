@@ -69,7 +69,7 @@ SENSOR_TYPES = {
 
 async def async_setup_entry(hass, entry, async_add_entities):
     """Set up MyPoolCopilot sensors."""
-    coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
+    coordinator = hass.data[DOMAIN][entry.entry_id]
 
     entities = []
     for key, description in SENSOR_TYPES.items():
