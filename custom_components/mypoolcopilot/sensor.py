@@ -1,80 +1,45 @@
-"""Sensor platform for MyPoolCopilot."""
-import logging
+from __future__ import annotations
 
-from homeassistant.helpers.entity import Entity
-from homeassistant.const import UnitOfTemperature
+from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
+
 from .const import DOMAIN
 
-_LOGGER = logging.getLogger(__name__)
-
-SENSOR_TYPES = {
-    "air_temperature": {"name": "Air Temperature", "unit": UnitOfTemperature.CELSIUS},
-    "ioniser_status": {"name": "Ioniser Status", "unit": None},
-    "orp": {"name": "ORP", "unit": "mV"},
-    "ph_level": {"name": "pH Level", "unit": None},
-    "poolcop_status": {"name": "PoolCop Status", "unit": None},
-    "pressure": {"name": "Pressure", "unit": "bar"},
-    "pump_speed": {"name": "Pump Speed", "unit": "rpm"},
-    "pump_status": {"name": "Pump Status", "unit": None},
-    "valve_position": {"name": "Valve Position", "unit": None},
-    "voltage": {"name": "Voltage", "unit": "V"},
-    "water_level": {"name": "Water Level", "unit": "%"},
-    "water_temperature": {"name": "Water Temperature", "unit": UnitOfTemperature.CELSIUS},
+SENSORS = {
+    "orp": ("ORP", "mV"),
+    "ph_level": ("pH Level", None),
+    "pressure": ("Pressure", "bar"),
+    "water_level": ("Water Level", "%"),
+    "water_temperature": ("Water Temperature", "°C"),
+    "air_temperature": ("Air Temperature", "°C"),
+    "ioniser_status": ("Ioniser Status", None),
+    "pump_status": ("Pump Status", None),
+    "pump_speed": ("Pump Speed", "rpm"),
+    "valve_position": ("Valve Position", None),
+    "poolcop_status": ("PoolCop Status", None),
 }
 
-async def async_setup_entry(
-    hass: HomeAssistant,
-    entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback,
-) -> None:
-    """Set up MyPoolCopilot sensors from a config entry."""
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
     coordinator = hass.data[DOMAIN][entry.entry_id]
-    sensors = [
-        MyPoolCopilotSensor(coordinator, key, description)
-        for key, description in SENSOR_TYPES.items()
-    ]
-    async_add_entities(sensors, True)
+    entities = []
 
-class MyPoolCopilotSensor(Entity):
-    """Representation of a MyPoolCopilot Sensor."""
+    for key, (name, unit) in SENSORS.items():
+        entities.append(PoolCopilotSensor(coordinator, key, name, unit))
 
-    def __init__(self, coordinator, key, description):
-        self.coordinator = coordinator
+    async_add_entities(entities)
+
+class PoolCopilotSensor(CoordinatorEntity, SensorEntity):
+    def __init__(self, coordinator, key, name, unit):
+        super().__init__(coordinator)
         self._key = key
-        self._name = description["name"]
-        self._unit = description["unit"]
-        self._unique_id = f"mypoolcopilot_{key}"
-        self._attr_should_poll = False
+        self._attr_name = name
+        self._attr_native_unit_of_measurement = unit
+        self._attr_unique_id = key  # <<< CORRIGÉ : pas de "mypoolcopilot_" devant
 
     @property
-    def name(self):
-        return self._name
-
-    @property
-    def unique_id(self):
-        return self._unique_id
-
-    @property
-    def state(self):
+    def native_value(self):
         return self.coordinator.data.get(self._key)
-
-    @property
-    def unit_of_measurement(self):
-        return self._unit
-
-    @property
-    def available(self):
-        return self.coordinator.last_update_success
-
-    async def async_update(self):
-        """Manually triggered update."""
-        _LOGGER.debug(
-            "[%s] Fetching state, coordinator data = %s",
-            self._key,
-            self.coordinator.data,
-        )
-        await self.coordinator.async_request_refresh()
 

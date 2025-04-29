@@ -26,14 +26,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     async def async_update_data() -> dict[str, Any]:
         """Fetch data from PoolCopilot API."""
-
         try:
             # 1. Récupérer un nouveau token
             with async_timeout.timeout(10):
                 headers = {"Content-Type": "application/x-www-form-urlencoded"}
                 payload = f"APIKEY={apikey}"
                 async with session.post("https://poolcopilot.com/api/v1/token", headers=headers, data=payload) as response:
-                    response.raise_for_status()
+                    if response.status != 200:
+                        raise UpdateFailed(f"Token request failed: {response.status}")
                     result = await response.json()
                     token = result.get("token")
                     if not token:
@@ -43,8 +43,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             with async_timeout.timeout(10):
                 headers = {"PoolCop-Token": token}
                 async with session.get("https://poolcopilot.com/api/v1/status", headers=headers) as response:
-                    response.raise_for_status()
-                    return (await response.json()).get("data", {})  # ✅ ici on extrait bien la partie utile
+                    if response.status != 200:
+                        raise UpdateFailed(f"Status request failed: {response.status}")
+                    return await response.json()
 
         except (ClientError, asyncio.TimeoutError) as err:
             raise UpdateFailed(f"Error fetching PoolCopilot data: {err}") from err
