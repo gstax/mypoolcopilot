@@ -53,11 +53,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         update_interval=timedelta(minutes=5),
     )
 
-    # ⚠️ Wait until HA is fully started before refreshing (ensures token entity is available)
-    async def _delayed_refresh(_now):
-        await coordinator.async_refresh()
+    # Retry refresh on startup up to 10 times (once per second)
+    async def _delayed_retry_refresh(_now):
+        for i in range(10):
+            try:
+                await coordinator.async_refresh()
+                _LOGGER.debug("Coordinator refreshed successfully on attempt %s", i + 1)
+                break
+            except UpdateFailed as e:
+                _LOGGER.warning("Retry %s: %s", i + 1, e)
+                await asyncio.sleep(1)
 
-    hass.bus.async_listen_once("homeassistant_started", _delayed_refresh)
+    hass.bus.async_listen_once("homeassistant_started", _delayed_retry_refresh)
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
