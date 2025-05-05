@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import json
 from datetime import timedelta
 from typing import Any
 
@@ -40,7 +41,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     _LOGGER.debug("✅ Received response: %s", response.status)
                     if response.status != 200:
                         raise UpdateFailed(f"Status request failed: {response.status}")
-                    return await response.json()
+                    json_data = await response.json()
+                    _LOGGER.debug("📦 Raw JSON response from PoolCopilot:\n%s", json.dumps(json_data, indent=2))
+                    return json_data
         except (ClientError, asyncio.TimeoutError) as err:
             raise UpdateFailed(f"Error fetching PoolCopilot data: {err}") from err
 
@@ -72,7 +75,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     _LOGGER.info("✅ Platforms set up successfully")
                     break
                 except UpdateFailed as e:
-                    _LOGGER.warning("⚠️ Refresh failed: %s", e)
+                    _LOGGER.warning("⚠ Refresh failed: %s", e)
             else:
                 _LOGGER.debug("⌛ Waiting for valid token...")
             await asyncio.sleep(2)
