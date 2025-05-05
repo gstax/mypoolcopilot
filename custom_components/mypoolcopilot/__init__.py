@@ -86,7 +86,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         await wait_for_token_and_refresh()
 
     hass.async_create_task(_handle_homeassistant_started_on_ready(hass))
+
+    # ✅ Stocker le coordinator
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
+
+    # ✅ Attendre le premier refresh avant de créer les entités
+    await coordinator.async_config_entry_first_refresh()
+
+    # ✅ Initialiser les plateformes (sensor.py)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
