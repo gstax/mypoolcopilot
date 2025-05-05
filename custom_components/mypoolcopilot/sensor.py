@@ -42,5 +42,7 @@ class PoolCopilotSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def native_value(self):
+        if not self.coordinator.data:
+            return None
         return self.coordinator.data.get(self._key)
 
