@@ -52,8 +52,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         update_interval=timedelta(minutes=5),
     )
 
-    async def wait_for_token_and_refresh():
-        _LOGGER.debug("⏳ Starting wait_for_token_and_refresh")
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
+
+    async def wait_for_token_and_refresh_then_forward():
+        _LOGGER.debug("⏳ Waiting for token to become valid before setup")
         while True:
             token_entity = hass.states.get("input_text.token_poolcopilot")
             if token_entity:
@@ -62,10 +64,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 _LOGGER.debug("❌ token_entity not found yet")
 
             if token_entity and token_entity.state not in ("unknown", "unavailable", ""):
-                _LOGGER.info("🎯 Token is valid, triggering refresh")
+                _LOGGER.info("🎯 Token is valid, triggering refresh and setting up platforms")
                 try:
                     await coordinator.async_refresh()
                     _LOGGER.info("✅ Coordinator refreshed successfully")
+                    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+                    _LOGGER.info("✅ Platforms set up successfully")
                     break
                 except UpdateFailed as e:
                     _LOGGER.warning("⚠️ Refresh failed: %s", e)
@@ -83,18 +87,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _mark_ready)
         await event.wait()
-        await wait_for_token_and_refresh()
+        await wait_for_token_and_refresh_then_forward()
 
     hass.async_create_task(_handle_homeassistant_started_on_ready(hass))
-
-    # ✅ Stocker le coordinator
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
-
-    # ✅ Attendre le premier refresh avant de créer les entités
-    await coordinator.async_config_entry_first_refresh()
-
-    # ✅ Initialiser les plateformes (sensor.py)
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
 
