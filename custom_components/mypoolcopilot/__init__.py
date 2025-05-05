@@ -22,22 +22,17 @@ PLATFORMS: list[str] = ["sensor"]
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up PoolCopilot from a config entry."""
     session = async_get_clientsession(hass)
-    apikey = entry.data["apikey"]
 
     async def async_update_data() -> dict[str, Any]:
         """Fetch data from PoolCopilot API."""
         try:
-            # 1. Récupérer un nouveau token
-            with async_timeout.timeout(10):
-                headers = {"Content-Type": "application/x-www-form-urlencoded"}
-                payload = f"APIKEY={apikey}"
-                async with session.post("https://poolcopilot.com/api/v1/token", headers=headers, data=payload) as response:
-                    if response.status != 200:
-                        raise UpdateFailed(f"Token request failed: {response.status}")
-                    result = await response.json()
-                    token = result.get("token")
-                    if not token:
-                        raise UpdateFailed("Token not received from PoolCopilot API.")
+            # 1. Récupérer le token depuis l'entité input_text
+            token_entity = hass.states.get("input_text.token_poolcopilot")
+            if not token_entity:
+                raise UpdateFailed("Token entity not found.")
+            token = token_entity.state
+            if not token or token in ("unknown", "unavailable"):
+                raise UpdateFailed("Invalid token in input_text.token_poolcopilot.")
 
             # 2. Interroger /status avec ce token
             with async_timeout.timeout(10):
