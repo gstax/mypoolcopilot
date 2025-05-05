@@ -9,7 +9,6 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from . import MyPoolCopilotCoordinator
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
@@ -28,20 +27,16 @@ SENSORS = {
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities
 ) -> None:
-    coordinator: MyPoolCopilotCoordinator = hass.data[DOMAIN][entry.entry_id]
-
-    if not coordinator.data:
-        _LOGGER.warning("No data available at setup; skipping sensor creation.")
-        return
+    coordinator = hass.data[DOMAIN][entry.entry_id]
 
     entities = []
     for key, description in SENSORS.items():
-        if key in coordinator.data:
-            entity = PoolCopilotSensor(coordinator, key, description)
-            _LOGGER.info("Creating sensor: %s = %s", key, coordinator.data[key])
-            entities.append(entity)
+        if coordinator.data and key in coordinator.data:
+            value = coordinator.data[key]
+            _LOGGER.info("🔧 Adding sensor: %s = %s", key, value)
+            entities.append(PoolCopilotSensor(coordinator, key, description))
         else:
-            _LOGGER.debug("Sensor key %s not in coordinator data", key)
+            _LOGGER.debug("Skipping sensor '%s' – key not in data or no data yet", key)
 
     if entities:
         async_add_entities(entities)
