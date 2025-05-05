@@ -33,7 +33,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             token = token_entity.state
             if not token or token in ("unknown", "unavailable"):
                 raise UpdateFailed("Invalid token in input_text.token_poolcopilot.")
-
             # 2. Query /status
             with async_timeout.timeout(10):
                 headers = {"PoolCop-Token": token}
@@ -41,7 +40,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     if response.status != 200:
                         raise UpdateFailed(f"Status request failed: {response.status}")
                     return await response.json()
-
         except (ClientError, asyncio.TimeoutError) as err:
             raise UpdateFailed(f"Error fetching PoolCopilot data: {err}") from err
 
@@ -65,13 +63,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     _LOGGER.warning("Refresh failed after token ready: %s", e)
             else:
                 _LOGGER.debug("Waiting for token entity to become available...")
-            await asyncio.sleep(2)
+                await asyncio.sleep(2)
 
-    hass.bus.async_listen_once("homeassistant_started", lambda _now: hass.async_create_task(wait_for_token_and_refresh()))
+    async def _handle_homeassistant_started(event):
+        await wait_for_token_and_refresh()
 
+    hass.bus.async_listen_once("homeassistant_started", _handle_homeassistant_started)
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
