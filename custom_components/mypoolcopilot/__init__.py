@@ -10,6 +10,7 @@ import async_timeout
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.const import EVENT_HOMEASSISTANT_STARTED
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
@@ -24,16 +25,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     session = async_get_clientsession(hass)
 
     async def async_update_data() -> dict[str, Any]:
-        """Fetch data from PoolCopilot API."""
         try:
-            # 1. Get token from input_text
             token_entity = hass.states.get("input_text.token_poolcopilot")
             if not token_entity:
                 raise UpdateFailed("Token entity not found.")
             token = token_entity.state
             if not token or token in ("unknown", "unavailable"):
                 raise UpdateFailed("Invalid token in input_text.token_poolcopilot.")
-            # 2. Query /status
             with async_timeout.timeout(10):
                 headers = {"PoolCop-Token": token}
                 async with session.get("https://poolcopilot.com/api/v1/status", headers=headers) as response:
@@ -65,17 +63,23 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 _LOGGER.debug("Waiting for token entity to become available...")
                 await asyncio.sleep(2)
 
-    async def _handle_homeassistant_started(event):
+    async def _handle_homeassistant_started_on_ready(hass: HomeAssistant):
+        event = asyncio.Event()
+
+        def _mark_ready(_):
+            event.set()
+
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _mark_ready)
+        await event.wait()
         await wait_for_token_and_refresh()
 
-    hass.bus.async_listen_once("homeassistant_started", _handle_homeassistant_started)
+    hass.async_create_task(_handle_homeassistant_started_on_ready(hass))
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
-
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
     return True
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Unload a config entry."""
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id)
