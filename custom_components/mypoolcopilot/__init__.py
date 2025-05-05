@@ -26,7 +26,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     async def async_update_data() -> dict[str, Any]:
         """Fetch data from PoolCopilot API."""
         try:
-            # 1. Récupérer le token depuis l'entité input_text
+            # 1. Get token from input_text
             token_entity = hass.states.get("input_text.token_poolcopilot")
             if not token_entity:
                 raise UpdateFailed("Token entity not found.")
@@ -34,7 +34,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             if not token or token in ("unknown", "unavailable"):
                 raise UpdateFailed("Invalid token in input_text.token_poolcopilot.")
 
-            # 2. Interroger /status avec ce token
+            # 2. Query /status
             with async_timeout.timeout(10):
                 headers = {"PoolCop-Token": token}
                 async with session.get("https://poolcopilot.com/api/v1/status", headers=headers) as response:
@@ -53,9 +53,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         update_interval=timedelta(minutes=5),
     )
 
-    await coordinator.async_refresh()
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
+    # ⚠️ Wait until HA is fully started before refreshing (ensures token entity is available)
+    async def _delayed_refresh(_now):
+        await coordinator.async_refresh()
 
+    hass.bus.async_listen_once("homeassistant_started", _delayed_refresh)
+
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
