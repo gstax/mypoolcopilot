@@ -25,6 +25,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     session = async_get_clientsession(hass)
 
     async def async_update_data() -> dict[str, Any]:
+        _LOGGER.debug("🔄 async_update_data() called")
         try:
             token_entity = hass.states.get("input_text.token_poolcopilot")
             if not token_entity:
@@ -34,7 +35,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 raise UpdateFailed("Invalid token in input_text.token_poolcopilot.")
             with async_timeout.timeout(10):
                 headers = {"PoolCop-Token": token}
+                _LOGGER.debug("📡 Requesting /status with token: %s", token[:6] + "..." if token else "empty")
                 async with session.get("https://poolcopilot.com/api/v1/status", headers=headers) as response:
+                    _LOGGER.debug("✅ Received response: %s", response.status)
                     if response.status != 200:
                         raise UpdateFailed(f"Status request failed: {response.status}")
                     return await response.json()
@@ -50,23 +53,32 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     async def wait_for_token_and_refresh():
+        _LOGGER.debug("⏳ Starting wait_for_token_and_refresh")
         while True:
             token_entity = hass.states.get("input_text.token_poolcopilot")
+            if token_entity:
+                _LOGGER.debug("🔍 token_entity found: %s", token_entity.state)
+            else:
+                _LOGGER.debug("❌ token_entity not found yet")
+
             if token_entity and token_entity.state not in ("unknown", "unavailable", ""):
+                _LOGGER.info("🎯 Token is valid, triggering refresh")
                 try:
                     await coordinator.async_refresh()
-                    _LOGGER.info("Coordinator refreshed after token became available.")
+                    _LOGGER.info("✅ Coordinator refreshed successfully")
                     break
                 except UpdateFailed as e:
-                    _LOGGER.warning("Refresh failed after token ready: %s", e)
+                    _LOGGER.warning("⚠️ Refresh failed: %s", e)
             else:
-                _LOGGER.debug("Waiting for token entity to become available...")
-                await asyncio.sleep(2)
+                _LOGGER.debug("⌛ Waiting for valid token...")
+            await asyncio.sleep(2)
 
     async def _handle_homeassistant_started_on_ready(hass: HomeAssistant):
+        _LOGGER.debug("🚀 Setting up event listener for homeassistant_started")
         event = asyncio.Event()
 
         def _mark_ready(_):
+            _LOGGER.debug("🏁 Home Assistant fully started")
             event.set()
 
         hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _mark_ready)
