@@ -53,18 +53,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         update_interval=timedelta(minutes=5),
     )
 
-    # Retry refresh on startup up to 10 times (once per second)
-    async def _delayed_retry_refresh(_now):
-        for i in range(10):
-            try:
-                await coordinator.async_refresh()
-                _LOGGER.debug("Coordinator refreshed successfully on attempt %s", i + 1)
-                break
-            except UpdateFailed as e:
-                _LOGGER.warning("Retry %s: %s", i + 1, e)
-                await asyncio.sleep(1)
+    async def wait_for_token_and_refresh():
+        while True:
+            token_entity = hass.states.get("input_text.token_poolcopilot")
+            if token_entity and token_entity.state not in ("unknown", "unavailable", ""):
+                try:
+                    await coordinator.async_refresh()
+                    _LOGGER.info("Coordinator refreshed after token became available.")
+                    break
+                except UpdateFailed as e:
+                    _LOGGER.warning("Refresh failed after token ready: %s", e)
+            else:
+                _LOGGER.debug("Waiting for token entity to become available...")
+            await asyncio.sleep(2)
 
-    hass.bus.async_listen_once("homeassistant_started", _delayed_retry_refresh)
+    hass.bus.async_listen_once("homeassistant_started", lambda _now: hass.async_create_task(wait_for_token_and_refresh()))
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
