@@ -20,7 +20,6 @@ _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS: list[str] = ["sensor"]
 
-
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up PoolCopilot from a config entry."""
     session = async_get_clientsession(hass)
@@ -41,9 +40,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     _LOGGER.debug("✅ Received response: %s", response.status)
                     if response.status != 200:
                         raise UpdateFailed(f"Status request failed: {response.status}")
-                    json_data = await response.json()
-                    _LOGGER.debug("📦 Full JSON response: %s", json_data)
-                    return json_data
+                    data = await response.json()
+                    _LOGGER.debug("📦 Full JSON response: %s", data)
+                    return data
         except (ClientError, asyncio.TimeoutError) as err:
             raise UpdateFailed(f"Error fetching PoolCopilot data: {err}") from err
 
@@ -95,7 +94,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.async_create_task(_handle_homeassistant_started_on_ready(hass))
 
     return True
-
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)

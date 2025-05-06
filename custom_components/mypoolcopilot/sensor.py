@@ -1,55 +1,54 @@
-from __future__ import annotations
-
-from homeassistant.components.sensor import SensorEntity
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
-
-from .const import DOMAIN
-
 import logging
+from homeassistant.components.sensor import SensorEntity
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-SENSOR_KEYS = {
-    "orp": "Redox (ORP)",
-    "ph": "pH",
-    "temperature": "Water Temperature",
-    "pump_status": "Pump Status",
-    "pump_speed": "Pump Speed",
-    "valve_position": "Valve Position",
-    "ioniser_status": "Ioniser Status",
-    "poolcop_status": "System Status"
+SENSOR_MAPPING = {
+    "orp": ("ORP", "mV"),
+    "pH": ("pH", None),
+    "temperature": ("Water Temperature", "°C", "PoolCop.temperature.water"),
+    "pump_status": ("Pump Status", None, "PoolCop.status.pump"),
+    "pump_speed": ("Pump Speed", None, "PoolCop.status.pumpspeed"),
+    "valve_position": ("Valve Position", None, "PoolCop.status.valveposition"),
+    "ioniser_status": ("Ioniser Status", None, "PoolCop.status.ioniser"),
+    "poolcop_status": ("PoolCop Status", None, "PoolCop.status.poolcop"),
 }
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
+def get_value_by_path(data, path):
+    try:
+        for key in path.split("."):
+            data = data[key]
+        return data
+    except (KeyError, TypeError):
+        return None
+
+async def async_setup_entry(hass, entry, async_add_entities):
     coordinator = hass.data[DOMAIN][entry.entry_id]
+    entities = []
 
-    sensors = []
-    for key, name in SENSOR_KEYS.items():
-        if key in coordinator.data:
-            sensors.append(PoolCopilotSensor(coordinator, key, name))
+    for key, (name, unit, *optional_path) in SENSOR_MAPPING.items():
+        path = optional_path[0] if optional_path else f"PoolCop.{key}"
+        value = get_value_by_path(coordinator.data, path)
+        if value is not None:
+            _LOGGER.debug("✅ Adding sensor '%s' from path: %s", key, path)
+            entities.append(PoolCopilotSensor(coordinator, key, name, unit, path))
         else:
-            _LOGGER.debug(f"Skipping sensor '{key}' – key not in data or no data yet")
+            _LOGGER.debug("Skipping sensor '%s' – key not in data or no data yet", key)
 
-    async_add_entities(sensors)
+    async_add_entities(entities)
     _LOGGER.info("✅ All sensors added successfully")
 
-class PoolCopilotSensor(SensorEntity):
-    def __init__(self, coordinator, key, name):
-        self._coordinator = coordinator
-        self._key = key
+class PoolCopilotSensor(CoordinatorEntity, SensorEntity):
+    def __init__(self, coordinator, key, name, unit, path):
+        super().__init__(coordinator)
         self._attr_name = f"PoolCopilot {name}"
         self._attr_unique_id = f"{DOMAIN}_{key}"
-
-    @property
-    def available(self):
-        return self._key in self._coordinator.data
+        self._attr_native_unit_of_measurement = unit
+        self._path = path
 
     @property
     def native_value(self):
-        return self._coordinator.data.get(self._key)
-
-    async def async_update(self):
-        await self._coordinator.async_request_refresh()
+        return get_value_by_path(self.coordinator.data, self._path)
 
