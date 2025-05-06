@@ -6,51 +6,66 @@ from typing import Any
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import EntityCategory
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+from . import MyPoolCopilotCoordinator
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-SENSORS = {
-    "orp": {"name": "ORP", "unit": "mV"},
-    "ph": {"name": "pH", "unit": None},
-    "temperature": {"name": "Water Temperature", "unit": "°C"},
-    "pump_status": {"name": "Pump Status", "unit": None},
-    "pump_speed": {"name": "Pump Speed", "unit": "rpm"},
-    "valve_position": {"name": "Valve Position", "unit": None},
-    "ioniser_status": {"name": "Ioniser Status", "unit": None},
-    "poolcop_status": {"name": "PoolCopilot Status", "unit": None},
+SENSOR_KEYS = {
+    "orp": "ORP",
+    "ph": "pH",
+    "temperature": "Water Temperature",
+    "pump_status": "Pump Status",
+    "pump_speed": "Pump Speed",
+    "valve_position": "Valve Position",
+    "ioniser_status": "Ioniser Status",
+    "poolcop_status": "PoolCop Status",
 }
 
+
 async def async_setup_entry(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_entities
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
-    coordinator = hass.data[DOMAIN][entry.entry_id]
-
+    coordinator: MyPoolCopilotCoordinator = hass.data[DOMAIN][entry.entry_id]
     entities = []
-    for key, description in SENSORS.items():
-        if coordinator.data and key in coordinator.data:
-            value = coordinator.data[key]
-            _LOGGER.info("🔧 Adding sensor: %s = %s", key, value)
-            entities.append(PoolCopilotSensor(coordinator, key, description))
+
+    data = coordinator.data
+    if not data:
+        _LOGGER.warning("🚫 No data available yet, no sensors created")
+        return
+
+    for key, name in SENSOR_KEYS.items():
+        if key in data:
+            _LOGGER.debug("✅ Adding sensor '%s' with value: %s", key, data[key])
+            entities.append(MyPoolCopilotSensor(coordinator, key, name))
         else:
-            _LOGGER.debug("Skipping sensor '%s' – key not in data or no data yet", key)
+            _LOGGER.debug("⏭ Skipping sensor '%s' – key not found in data", key)
 
-    if entities:
-        async_add_entities(entities)
+    async_add_entities(entities)
+    _LOGGER.info("🆗 %d sensor(s) added for PoolCopilot", len(entities))
 
-class PoolCopilotSensor(CoordinatorEntity, SensorEntity):
-    def __init__(self, coordinator, key: str, description: dict[str, Any]) -> None:
+
+class MyPoolCopilotSensor(CoordinatorEntity, SensorEntity):
+    def __init__(
+        self,
+        coordinator: MyPoolCopilotCoordinator,
+        key: str,
+        name: str,
+    ) -> None:
         super().__init__(coordinator)
         self._key = key
-        self._attr_name = description["name"]
-        self._attr_native_unit_of_measurement = description["unit"]
-        self._attr_unique_id = key
-        self._attr_entity_category = EntityCategory.DIAGNOSTIC
+        self._attr_name = f"PoolCopilot {name}"
+        self._attr_unique_id = f"mypoolcopilot_{key}"
+        _LOGGER.debug("🔧 Created sensor entity: %s", self._attr_name)
 
     @property
     def native_value(self) -> Any:
-        return self.coordinator.data.get(self._key)
+        value = self.coordinator.data.get(self._key)
+        _LOGGER.debug("📥 native_value for %s: %s", self._attr_name, value)
+        return value
 
