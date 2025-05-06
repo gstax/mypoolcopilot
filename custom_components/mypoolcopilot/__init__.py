@@ -41,7 +41,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     _LOGGER.debug("✅ Received response: %s", response.status)
                     if response.status != 200:
                         raise UpdateFailed(f"Status request failed: {response.status}")
-                    return await response.json()
+                    json_data = await response.json()
+                    _LOGGER.debug("📦 Full JSON response: %s", json_data)
+                    return json_data
         except (ClientError, asyncio.TimeoutError) as err:
             raise UpdateFailed(f"Error fetching PoolCopilot data: {err}") from err
 
