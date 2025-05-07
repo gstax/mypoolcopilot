@@ -100,5 +100,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if unload_ok:
         if DOMAIN in hass.data:
             hass.data[DOMAIN].pop(entry.entry_id, None)
-        _LOGGER.debug("✅ Unload successful for_
+        _LOGGER.debug("✅ Unload successful for  %s", entry.entry_id)
+    else:
+        _LOGGER.warning("❌ Failed to unload platforms for entry %s", entry.entry_id)
+    return unload_ok
 
