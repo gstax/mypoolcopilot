@@ -20,12 +20,13 @@ _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS: list[str] = ["sensor"]
 
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up PoolCopilot from a config entry."""
     session = async_get_clientsession(hass)
 
     async def async_update_data() -> dict[str, Any]:
-        _LOGGER.debug("🔄 async_update_data() called")
+        _LOGGER.debug("🔄 async_update_data() called (periodic refresh or manual reload)")
         try:
             token_entity = hass.states.get("input_text.token_poolcopilot")
             if not token_entity:
@@ -58,24 +59,29 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     async def wait_for_token_and_refresh_then_forward():
         _LOGGER.debug("⏳ Waiting for token to become valid before setup")
-        while True:
+        max_attempts = 12
+        attempts = 0
+        while attempts < max_attempts:
             token_entity = hass.states.get("input_text.token_poolcopilot")
             token = token_entity.state if token_entity else None
 
             if token_entity and token not in ("unknown", "unavailable", ""):
-                _LOGGER.info("🎯 Token is valid, trying refresh...")
+                _LOGGER.info("🎯 Token is valid, triggering refresh and setting up platforms")
                 try:
                     await coordinator.async_refresh()
                     _LOGGER.info("✅ Coordinator refreshed successfully")
                     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
                     _LOGGER.info("✅ Platforms set up successfully")
-                    break
+                    return
                 except UpdateFailed as e:
                     _LOGGER.warning("⚠ Refresh failed: %s — retrying in 10s", e)
             else:
                 _LOGGER.debug("⌛ Waiting for valid token...")
 
+            attempts += 1
             await asyncio.sleep(10)
+
+        _LOGGER.error("❌ Setup aborted after %s attempts. Check token or API status.", max_attempts)
 
     async def _handle_homeassistant_started_on_ready(hass: HomeAssistant):
         _LOGGER.debug("🚀 Setting up event listener for homeassistant_started")
@@ -90,28 +96,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         await wait_for_token_and_refresh_then_forward()
 
     hass.async_create_task(_handle_homeassistant_started_on_ready(hass))
-
     return True
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    try:
-        coordinator = hass.data.get(DOMAIN, {}).get(entry.entry_id)
-        if not coordinator:
-            _LOGGER.warning("⚠️ No coordinator found, skipping unload_platforms")
-            return True
-
-        unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    if not unload_ok:
+        _LOGGER.warning("⚠ unload_platforms returned False, but continuing to allow reload")
+    if DOMAIN in hass.data:
         hass.data[DOMAIN].pop(entry.entry_id, None)
-
-        if not unload_ok:
-            _LOGGER.warning("⚠️ unload_platforms returned False, but continuing to allow reload")
-        else:
-            _LOGGER.debug("✅ Unload successful for %s", entry.entry_id)
-
-        return True
-    except Exception as e:
-        _LOGGER.error("❌ Exception during unload: %s", e)
-        return False
+        _LOGGER.debug("🧹 Coordinator reference cleaned from hass.data")
+    return True
 
