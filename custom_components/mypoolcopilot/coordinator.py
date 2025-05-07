@@ -4,7 +4,7 @@ from typing import Any
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-from homeassistant.helpers.aiohttp_client import ClientSession
+from aiohttp import ClientSession
 
 from .const import DOMAIN, API_STATUS_URL, API_TOKEN_URL
 
