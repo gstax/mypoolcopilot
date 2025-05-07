@@ -98,14 +98,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     try:
+        coordinator = hass.data.get(DOMAIN, {}).get(entry.entry_id)
+        if not coordinator:
+            _LOGGER.warning("⚠️ No coordinator found, skipping unload_platforms")
+            return True
+
         unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-        if DOMAIN in hass.data:
-            hass.data[DOMAIN].pop(entry.entry_id, None)
+
+        hass.data[DOMAIN].pop(entry.entry_id, None)
+
         if not unload_ok:
             _LOGGER.warning("⚠️ unload_platforms returned False, but continuing to allow reload")
         else:
             _LOGGER.debug("✅ Unload successful for %s", entry.entry_id)
-        return True  # Always allow reload even if platforms didn't unload cleanly
+
+        return True
     except Exception as e:
         _LOGGER.error("❌ Exception during unload: %s", e)
         return False
