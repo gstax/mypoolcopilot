@@ -24,7 +24,10 @@ class PoolCopilotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 return self.async_create_entry(
                     title="PoolCopilot",
-                    data={"apikey": apikey},
+                    data={
+                        "apikey": apikey,
+                        "token_entity": "input_text.token_poolcopilot",  # ✅ Ajout ici
+                    },
                 )
 
         return self.async_show_form(

@@ -1,45 +1,40 @@
-import logging
-from homeassistant.config_entries import ConfigEntry
+from __future__ import annotations
+
+import voluptuous as vol
+
+from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.exceptions import ConfigEntryNotReady
-from .const import DOMAIN, PLATFORMS
-from .coordinator import PoolCopilotDataUpdateCoordinator
-from homeassistant.helpers.update_coordinator import UpdateFailed
+from homeassistant.data_entry_flow import FlowResult
 
-_LOGGER = logging.getLogger(__name__)
+from .const import DOMAIN
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up MyPoolCopilot from a config entry."""
-    hass.data.setdefault(DOMAIN, {})
+class PoolCopilotConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    """Handle a config flow for PoolCopilot."""
 
-    session = async_get_clientsession(hass)
-    token_entity = entry.data.get("token_entity")
+    VERSION = 1
 
-    if not token_entity:
-        _LOGGER.error("❌ 'token_entity' is missing from config entry data")
-        raise ConfigEntryNotReady("token_entity is not configured")
+    async def async_step_user(self, user_input=None) -> FlowResult:
+        """Handle a flow initiated by the user."""
+        errors = {}
 
-    coordinator = PoolCopilotDataUpdateCoordinator(hass, session, token_entity)
-    hass.data[DOMAIN][entry.entry_id] = coordinator
+        if user_input is not None:
+            apikey = user_input.get("apikey")
+            if not apikey:
+                errors["base"] = "missing_apikey"
+            else:
+                return self.async_create_entry(
+                    title="PoolCopilot",
+                    data={
+                        "apikey": apikey,
+                        "token_entity": "input_text.token_poolcopilot",  # ✅ Ajout ici
+                    },
+                )
 
-    try:
-        await coordinator.async_config_entry_first_refresh()
-        _LOGGER.info("✅ Coordinator refreshed successfully at setup")
-    except UpdateFailed as err:
-        _LOGGER.warning("⚠ Initial data fetch failed: %s", err)
-
-    hass.config_entries.async_setup_platforms(entry, PLATFORMS)
-    return True
-
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Unload a config entry."""
-    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-    if DOMAIN in hass.data:
-        hass.data[DOMAIN].pop(entry.entry_id, None)
-    if unload_ok:
-        _LOGGER.debug("✅ Unload successful for  %s", entry.entry_id)
-    else:
-        _LOGGER.warning("⚠ unload_platforms returned False, but continuing to allow reload")
-    return True
+        return self.async_show_form(
+            step_id="user",
+            data_schema=vol.Schema({
+                vol.Required("apikey"): str,
+            }),
+            errors=errors,
+        )
 
