@@ -6,18 +6,18 @@ from .const import DOMAIN
 _LOGGER = logging.getLogger(__name__)
 
 SENSOR_DEFINITIONS = {
-    "orp": {"name": "PoolCopilot ORP", "unit": "mV", "path": "PoolCop.orp"},
-    "ph": {"name": "PoolCop pH", "unit": "", "path": "PoolCop.pH"},
-    "temperature": {"name": "PoolCop Water Temperature", "unit": "°C", "path": "PoolCop.temperature.water"},
-    "air_temperature": {"name": "PoolCop Air Temperature", "unit": "°C", "path": "PoolCop.temperature.air"},
-    "pressure": {"name": "PoolCop Water Pressure", "unit": "bar", "path": "PoolCop.pressure"},
-    "voltage": {"name": "PoolCop Voltage", "unit": "V", "path": "PoolCop.voltage"},
-    "water_level": {"name": "PoolCop Water Level", "unit": "", "path": "PoolCop.waterlevel"},
-    "pump_status": {"name": "PoolCopilot Pump Status", "unit": "", "path": "PoolCop.status.pump"},
-    "pump_speed": {"name": "PoolCopilot Pump Speed", "unit": "", "path": "PoolCop.status.pumpspeed"},
-    "valve_position": {"name": "PoolCopilot Valve Position", "unit": "", "path": "PoolCop.status.valveposition"},
-    "ioniser_status": {"name": "PoolCopilot Ioniser Status", "unit": "", "path": "PoolCop.status.ioniser"},
-    "poolcop_status": {"name": "PoolCopilot PoolCop Status", "unit": "", "path": "PoolCop.status.poolcop"},
+    "orp": {"name": "ORP", "unit": "mV", "path": "PoolCop.orp"},
+    "ph": {"name": "pH", "unit": "", "path": "PoolCop.pH"},
+    "temperature": {"name": "Water Temperature", "unit": "°C", "path": "PoolCop.temperature.water"},
+    "air_temperature": {"name": "Air Temperature", "unit": "°C", "path": "PoolCop.temperature.air"},
+    "pressure": {"name": "Water Pressure", "unit": "bar", "path": "PoolCop.pressure"},
+    "voltage": {"name": "Voltage", "unit": "V", "path": "PoolCop.voltage"},
+    "water_level": {"name": "Water Level", "unit": "", "path": "PoolCop.waterlevel"},
+    "pump_status": {"name": "Pump Status", "unit": "", "path": "PoolCop.status.pump"},
+    "pump_speed": {"name": "Pump Speed", "unit": "", "path": "PoolCop.status.pumpspeed"},
+    "valve_position": {"name": "Valve Position", "unit": "", "path": "PoolCop.status.valveposition"},
+    "ioniser_status": {"name": "Ioniser Status", "unit": "", "path": "PoolCop.status.ioniser"},
+    "poolcop_status": {"name": "PoolCop Status", "unit": "", "path": "PoolCop.status.poolcop"},
 }
 
 

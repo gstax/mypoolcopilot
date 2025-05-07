@@ -60,13 +60,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         _LOGGER.debug("⏳ Waiting for token to become valid before setup")
         while True:
             token_entity = hass.states.get("input_text.token_poolcopilot")
-            if token_entity:
-                _LOGGER.debug("🔍 token_entity found: %s", token_entity.state)
-            else:
-                _LOGGER.debug("❌ token_entity not found yet")
+            token = token_entity.state if token_entity else None
 
-            if token_entity and token_entity.state not in ("unknown", "unavailable", ""):
-                _LOGGER.info("🎯 Token is valid, triggering refresh and setting up platforms")
+            if token_entity and token not in ("unknown", "unavailable", ""):
+                _LOGGER.info("🎯 Token is valid, trying refresh...")
                 try:
                     await coordinator.async_refresh()
                     _LOGGER.info("✅ Coordinator refreshed successfully")
@@ -74,10 +71,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     _LOGGER.info("✅ Platforms set up successfully")
                     break
                 except UpdateFailed as e:
-                    _LOGGER.warning("⚠ Refresh failed: %s", e)
+                    _LOGGER.warning("⚠ Refresh failed: %s — retrying in 10s", e)
             else:
                 _LOGGER.debug("⌛ Waiting for valid token...")
-            await asyncio.sleep(2)
+
+            await asyncio.sleep(10)
 
     async def _handle_homeassistant_started_on_ready(hass: HomeAssistant):
         _LOGGER.debug("🚀 Setting up event listener for homeassistant_started")
