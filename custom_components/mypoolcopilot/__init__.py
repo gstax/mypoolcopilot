@@ -3,11 +3,12 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.exceptions import ConfigEntryNotReady
-from .const import DOMAIN, PLATFORMS
+from .const import DOMAIN
 from .coordinator import PoolCopilotDataUpdateCoordinator
 from homeassistant.helpers.update_coordinator import UpdateFailed
 
 _LOGGER = logging.getLogger(__name__)
+PLATFORMS = ["sensor"]
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up MyPoolCopilot from a config entry."""
@@ -25,7 +26,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     except UpdateFailed as err:
         _LOGGER.warning("⚠ Initial data fetch failed: %s", err)
 
-    hass.config_entries.async_setup_platforms(entry, PLATFORMS)
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -34,7 +35,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if DOMAIN in hass.data:
         hass.data[DOMAIN].pop(entry.entry_id, None)
     if unload_ok:
-        _LOGGER.debug("✅ Unload successful for  %s", entry.entry_id)
+        _LOGGER.debug("✅ Unload successful for %s", entry.entry_id)
     else:
         _LOGGER.warning("⚠ unload_platforms returned False, but continuing to allow reload")
     return True

@@ -35,7 +35,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     entities = []
 
     for sensor_key, sensor_def in SENSOR_DEFINITIONS.items():
-        value = get_value_from_path(coordinator.data, sensor_def["path"])
+        value = get_value_from_path(coordinator.data or {}, sensor_def["path"])
         if value is not None:
             _LOGGER.debug("✅ Adding sensor '%s' from path: %s", sensor_key, sensor_def["path"])
             entities.append(PoolCopilotSensor(coordinator, sensor_key, sensor_def))
@@ -58,5 +58,9 @@ class PoolCopilotSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def native_value(self):
-        return get_value_from_path(self.coordinator.data, self.definition["path"])
+        return get_value_from_path(self.coordinator.data or {}, self.definition["path"])
+
+    @property
+    def available(self):
+        return self.coordinator.last_update_success and self.coordinator.data is not None
 
