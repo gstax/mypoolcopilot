@@ -3,7 +3,6 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.helpers.typing import ConfigType
 
 from .const import DOMAIN
 from .coordinator import PoolCopilotDataUpdateCoordinator
@@ -17,12 +16,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
 
     token_entity = entry.data.get("token_entity")
-    if not token_entity:
-        _LOGGER.error("❌ 'token_entity' is missing from config entry data")
-        raise ConfigEntryNotReady("'token_entity' is missing")
+    apikey = entry.data.get("apikey")
+
+    if not token_entity or not apikey:
+        _LOGGER.error("❌ 'token_entity' or 'apikey' is missing from config entry data")
+        raise ConfigEntryNotReady("'token_entity' or 'apikey' is missing")
 
     session = async_get_clientsession(hass)
-    coordinator = PoolCopilotDataUpdateCoordinator(hass, session, token_entity)
+    coordinator = PoolCopilotDataUpdateCoordinator(hass, session, token_entity, apikey)
     await coordinator.async_config_entry_first_refresh()
     hass.data[DOMAIN][entry.entry_id] = coordinator
 

@@ -9,7 +9,7 @@ from .const import DOMAIN, API_STATUS_URL
 _LOGGER = logging.getLogger(__name__)
 
 class PoolCopilotDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
-    def __init__(self, hass, session: aiohttp.ClientSession, token_entity: str) -> None:
+    def __init__(self, hass, session: aiohttp.ClientSession, token_entity: str, apikey: str) -> None:
         super().__init__(
             hass,
             _LOGGER,
@@ -18,6 +18,7 @@ class PoolCopilotDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         )
         self.session = session
         self.token_entity = token_entity
+        self.apikey = apikey
 
     async def _async_update_data(self) -> dict[str, Any]:
         if not self.token_entity:
@@ -30,7 +31,7 @@ class PoolCopilotDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         token = state.state
         headers = {
             "PoolCop-Token": token,
-            "x-api-key": "a2AYWvjVYujm9I6q569j8PwpnJGXGczq"
+            "x-api-key": self.apikey
         }
 
         try:
