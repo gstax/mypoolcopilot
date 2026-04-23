@@ -34,11 +34,24 @@ class PoolCopilotDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "x-api-key": self.apikey
         }
 
+#        _LOGGER.warning(f"🔍 DEBUG - API URL: {API_STATUS_URL}")
+#        _LOGGER.warning(f"🔍 DEBUG - Token entity: {self.token_entity}")
+#        _LOGGER.warning(f"🔍 DEBUG - Token value: {token[:10]}..." if len(token) > 10 else f"🔍 DEBUG - Token: {token}")
+#        _LOGGER.warning(f"🔍 DEBUG - API Key: {self.apikey[:8]}..." if len(self.apikey) > 8 else f"🔍 DEBUG - API Key: {self.apikey}")
+
+
         try:
             async with self.session.get(API_STATUS_URL, headers=headers, timeout=10) as response:
+#                _LOGGER.warning(f"🔍 DEBUG - Response status: {response.status}")
+#                _LOGGER.warning(f"🔍 DEBUG - Response headers: {dict(response.headers)}")
                 if response.status != 200:
-                    raise UpdateFailed(f"Status request failed: {response.status}")
+#                    raise UpdateFailed(f"Status request failed: {response.status}")
+                    body = await response.text()
+                    _LOGGER.error(f"❌ API Error {response.status}: {body}")
+                    raise UpdateFailed(f"Status request failed: {response.status} - {body}")
                 return await response.json()
         except aiohttp.ClientError as err:
+#            raise UpdateFailed(f"Client error: {err}")
+            _LOGGER.error(f"❌ Client error: {err}")
             raise UpdateFailed(f"Client error: {err}")
 
