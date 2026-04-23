@@ -35,8 +35,8 @@ MyPoolCopilot is a custom integration for Home Assistant to monitor your PoolCop
 5. Enter your PoolCopilot API Key.
 
 **Note:**  
-The PoolCopilot API token expires after 15 minutes.  
-To ensure continuous operation, a token refresh automation every 5 minutes (to be safe) is required.
+The PoolCopilot API token expiry is variable (typically between 5 and 15 minutes).
+To ensure continuous operation, a token refresh automation every 5 minutes is recommended.
 ##  Automatic PoolCopilot Token Refresh
 
 Because the PoolCopilot API token expires quickly, you need to implement an automatic refresh system.
